@@ -13,6 +13,12 @@ st.set_page_config(page_title="Scrip Analysis",
 
 st.title("Scrips")
 
+hide_menu_style = """
+    <style>
+        #MainMenu {display:none;}
+    </style>
+"""
+st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 df1 = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
