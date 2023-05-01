@@ -2,6 +2,14 @@ import pandas as pd
 import streamlit as st
 import altair as alt
 
+
+hide_menu_style = """
+    <style>
+        #MainMenu {display:none;}
+    </style>
+"""
+
+st.markdown(hide_menu_style, unsafe_allow_html=True)
 # Load data from Excel file
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
