@@ -3,8 +3,7 @@ import streamlit as st
 import altair as alt
 
 # Load data from Excel file
-df = pd.read_excel(
-    r'/Users/vuone/Desktop/Code/Fundamental Analysis/Fundamentals.xlsx', sheet_name='Sheet1')
+df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
 # Create EPS Filter and DPS Filter columns based on EPS and Dps values
 df['EPS Filter'] = pd.cut(df['EPS'], bins=[-float('inf'), 0, 5, 10, 20, float(
