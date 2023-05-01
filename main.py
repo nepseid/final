@@ -6,10 +6,10 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 hide_menu_style = """
-        <style>
-        #MainMenu {visibility: hidden;}
-        </style>
-        """
+    <style>
+        #MainMenu {display:none;}
+    </style>
+"""
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 st.set_page_config(page_title="Fundamental Analysis",
