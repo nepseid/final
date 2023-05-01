@@ -5,12 +5,6 @@ import altair as alt
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
-hide_menu_style = """
-    <style>
-        #MainMenu {display:none;}
-    </style>
-"""
-st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 st.set_page_config(page_title="Fundamental Analysis",
                    page_icon="bar_chart:",
@@ -18,6 +12,13 @@ st.set_page_config(page_title="Fundamental Analysis",
                    )
 
 st.title("Fundamental Analysis")
+
+hide_menu_style = """
+    <style>
+        #MainMenu {display:none;}
+    </style>
+"""
+st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
