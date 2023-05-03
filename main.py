@@ -65,7 +65,7 @@ fig_price = px.bar(
     color_discrete_sequence=["#0083B8"],
     template="plotly_white",
     config={
-        "scrollZoom": False  # Disable zooming
+        "scrollZoom": False
     }
 )
 
