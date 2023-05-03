@@ -9,7 +9,6 @@ import plotly.graph_objects as go
 st.set_page_config(page_title="Fundamental Analysis",
                    page_icon="bar_chart:",
                    layout="wide"
-                   initial_sidebar_state="expanded"
                    )
 
 st.title("Fundamental Analysis")
