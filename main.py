@@ -66,6 +66,15 @@ fig_price = px.bar(
     template="plotly_white",
 )
 
+fig_price.update_layout(
+    # Disable zooming and panning
+    dragmode=False,
+    uirevision="True",
+    xaxis={"fixedrange": True},
+    yaxis={"fixedrange": True},
+)
+
+
 paid_up = (
     df_selection.groupby(by=["SYMBOL"]).sum()[
         ["PAID-UP"]].sort_values(by="PAID-UP")
