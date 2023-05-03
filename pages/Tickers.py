@@ -113,7 +113,7 @@ if not df_filtered.empty:
 
     # Set the figure title
     fig_capeps.update_layout(
-        title=f"<b>EPS and Capital for {symbol}, {quarter}</b>")
+        title=f"<b>EPS and Capital for {symbol}, {quarter}</b>",dragmode=False)
 
     fig_eps2.update_layout(showlegend=False)
     fig_paidup2.update_layout(showlegend=False)
