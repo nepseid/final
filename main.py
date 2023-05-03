@@ -190,7 +190,7 @@ fig_eps_dps.update_layout(
     yaxis2=dict(range=[0, max(eps_dps["EPS"].max(), eps_dps["Dps"].max())]),
 )
 
-st.plotly_chart(fig_price, use_container_width=True)
+st.plotly_chart(fig_price, use_container_width=False,width="100%")
 st.plotly_chart(fig_paid_up, use_container_width=True)
 st.plotly_chart(fig_eps_dps, use_container_width=True)
 st.plotly_chart(fig_bookvalue, use_container_width=True)
