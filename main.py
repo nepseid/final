@@ -64,6 +64,10 @@ fig_price = px.bar(
     title="<b>Last Traded Price </b>",
     color_discrete_sequence=["#0083B8"],
     template="plotly_white",
+),
+config={
+        "scrollZoom": False  # Remove the zoom functionality
+    }
 )
 
 
