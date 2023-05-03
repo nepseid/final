@@ -66,7 +66,7 @@ fig_price = px.bar(
     template="plotly_white",
     config={
         "scrollZoom": False  # Disable zooming
-    }
+    },
    
 )
 
