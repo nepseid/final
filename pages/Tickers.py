@@ -14,7 +14,8 @@ st.set_page_config(page_title="Scrip Analysis",
 st.title("Scrips")
 
 
-df1 = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
+df1 = pd.read_excel(
+    r'/Users/vuone/Desktop/Code/Fundamental Analysis/Fundamentals.xlsx', sheet_name='Sheet1')
 
 
 Timeframe = df1["Quarter"]+"-"+df1["Year"]
@@ -47,14 +48,7 @@ if not df_filtered.empty:
         color_discrete_sequence=["#0083B8"],
         template="plotly_white"
     )
-fig_eps2.update_layout(
-    # Disable zooming and panning
-    dragmode=False,
-    uirevision="True",
-    xaxis={"fixedrange": True},
-    yaxis={"fixedrange": True},
-)
-    
+
     fig_paidup2 = px.bar(
         df_filtered,
         x="Timeframe",
@@ -67,14 +61,6 @@ fig_eps2.update_layout(
         color_discrete_sequence=["#0083B8"],
         template="plotly_white"
     )
-    
- fig_eps2.update_layout(
-    # Disable zooming and panning
-    dragmode=False,
-    uirevision="True",
-    xaxis={"fixedrange": True},
-    yaxis={"fixedrange": True},
-)
 
  # Create a subplot with two y-axes
     fig_capeps = make_subplots(specs=[[{"secondary_y": True}]])
