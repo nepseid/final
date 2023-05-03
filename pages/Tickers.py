@@ -124,7 +124,7 @@ fig_paidup2.update_layout(
 
     fig_eps2.update_layout(showlegend=False)
     fig_paidup2.update_layout(showlegend=False)
-    fig_capeps.update_layout(showlegend=False,dragmode=False)
+    fig_capeps.update_layout(showlegend=False)
 
     st.plotly_chart(fig_eps2, use_container_width=True)
     st.plotly_chart(fig_paidup2, use_container_width=True)
