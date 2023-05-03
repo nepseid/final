@@ -191,8 +191,8 @@ fig_eps_dps.update_layout(
 )
 
 st.plotly_chart(fig_price, use_container_width=True,config={
-        "dragmode": "pan",
-        "scrollZoom": False
+        "modeBarButtonsToRemove": ["zoomIn2d", "zoomOut2d", "autoScale2d"],
+        "dragmode": "pan"
     })
 st.plotly_chart(fig_paid_up, use_container_width=True)
 st.plotly_chart(fig_eps_dps, use_container_width=True)
