@@ -237,24 +237,7 @@ fig_eps_dps.update_layout(
     legend=dict(x=0.7, y=1),
     yaxis=dict(range=[0, max(eps_dps["EPS"].max(), eps_dps["Dps"].max())]),
     yaxis2=dict(range=[0, max(eps_dps["EPS"].max(), eps_dps["Dps"].max())]),
-    dragmode=False  # disable dragging
-)
-
-fig_eps_dps.update_layout(
-    title="<b>EPS and DPS</b>",
-    template="plotly_white",
-    xaxis_title="Symbol",
-    yaxis_title="EPS",
-    yaxis2_title="DPS",
-    legend=dict(x=0.7, y=1),
-    yaxis=dict(
-        range=[0, max(eps_dps["EPS"].max(), eps_dps["Dps"].max())],
-        dragmode=False  # disable dragging for y-axis
-    ),
-    yaxis2=dict(
-        range=[0, max(eps_dps["EPS"].max(), eps_dps["Dps"].max())],
-        dragmode=False  # disable dragging for y-axis
-    )
+    dragmode=False
 )
 
 st.plotly_chart(fig_price, use_container_width=True)
