@@ -83,35 +83,35 @@ fig_paidup2.update_layout(
 )
 
  # Create a subplot with two y-axes
-    fig_capeps = make_subplots(specs=[[{"secondary_y": True}]])
+   fig_capeps = make_subplots(specs=[[{"secondary_y": True}]])
 
-    # Add a bar chart to the primary y-axis
-    fig_capeps.add_trace(
-        px.bar(
-            df_filtered,
-            x="Timeframe",
-            y="EPS",
-            color="SYMBOL",
-            facet_col="SYMBOL",
-            facet_col_spacing=0.005,
-            orientation="v",
-            color_discrete_sequence=["#0083B8"],
-            template="plotly_white"
-        ).data[0],
-        secondary_y=False
-    )
+# Add a bar chart to the primary y-axis
+fig_capeps.add_trace(
+    px.bar(
+        df_filtered,
+        x="Timeframe",
+        y="EPS",
+        color="SYMBOL",
+        facet_col="SYMBOL",
+        facet_col_spacing=0.005,
+        orientation="v",
+        color_discrete_sequence=["#0083B8"],
+        template="plotly_white"
+    ).data[0],
+    secondary_y=False
+)
 
-    # Add a line chart to the secondary y-axis
-    fig_capeps.add_trace(
-        go.Scatter(
-            x=df_filtered["Timeframe"],
-            y=df_filtered["PAID-UP"],
-            mode="lines",
-            name="Capital",
-            line=dict(color="#FBB13C")
-        ),
-        secondary_y=True
-    )
+# Add a line chart to the secondary y-axis
+fig_capeps.add_trace(
+    go.Scatter(
+        x=df_filtered["Timeframe"],
+        y=df_filtered["PAID-UP"],
+        mode="lines",
+        name="Capital",
+        line=dict(color="#FBB13C")
+    ),
+    secondary_y=True
+)
 
     # Set the axis labels and titles
     fig_capeps.update_xaxes(title_text="Timeframe")
