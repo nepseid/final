@@ -83,7 +83,7 @@ fig_paidup2.update_layout(
 )
 
  # Create a subplot with two y-axes
- fig_capeps = make_subplots(specs=[[{"secondary_y": True}]])
+    fig_capeps = make_subplots(specs=[[{"secondary_y": True}]])
 
     # Add a bar chart to the primary y-axis
     fig_capeps.add_trace(
