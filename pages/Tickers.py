@@ -14,8 +14,7 @@ st.set_page_config(page_title="Scrip Analysis",
 st.title("Scrips")
 
 
-df1 = pd.read_excel(
-    r'/Users/vuone/Desktop/Code/Fundamental Analysis/Fundamentals.xlsx', sheet_name='Sheet1')
+df1 = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
 
 Timeframe = df1["Quarter"]+"-"+df1["Year"]
