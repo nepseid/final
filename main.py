@@ -6,10 +6,12 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 
-st.set_page_config(page_title="Fundamental Analysis",
-                   page_icon="bar_chart:",
-                   layout="wide"
-                   )
+st.set_page_config(
+    page_title="Fundamental Analysis",
+    page_icon=":bar_chart:",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 st.title("Fundamental Analysis")
 
