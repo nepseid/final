@@ -24,10 +24,6 @@ eps_filter = st.sidebar.selectbox('Select EPS Filter:', options=[
 dps_filter = st.sidebar.selectbox('Select DPS Filter:', options=[
                                   'All', 'Negative', '0-5', '5-10', '10-20', '20-200'])
 
-# Sector filter with dropdown list and checkboxes
-sector_filter = st.sidebar.multiselect(
-    'Select Sector:', df['Sector'].unique(), default=df['Sector'].unique())
-
 # Apply filters to data
 df_filtered = df[(df['Year'] == year_filter) &
                  (df['Quarter'] == quarter_filter)]
@@ -46,9 +42,17 @@ if eps_filter != 'All':
 if dps_filter != 'All':
     df_filtered = df_filtered[df_filtered['DPS Filter'] == dps_filter]
 
+# Get unique sector values excluding "Delist"
+sector_options = df_filtered['Sector'].unique()
+sector_options = [sector for sector in sector_options if sector != 'Delist']
+
+# Sector filter with dropdown list and checkboxes
+sector_filter = st.sidebar.multiselect(
+    'Select Sector:', sector_options, default=sector_options)
+
+# Apply sector filter
 if sector_filter:
     df_filtered = df_filtered[df_filtered['Sector'].isin(sector_filter)]
-
 # Bar charts
 
 eps_chart = alt.Chart(df_filtered).mark_bar().encode(
@@ -79,18 +83,40 @@ cap_chart = alt.Chart(df_filtered).mark_bar().encode(
     text=alt.Text('Price', format='.2f'),
     color=alt.Color('SYMBOL', legend=None)
 )
-
-
 # Render charts
 
 st.write(f"Price for {year_filter} Q{quarter_filter}")
-st.altair_chart(price_chart, use_container_width=True)
+price_chart_text = price_chart.mark_text(
+    align='center',
+    baseline='middle',
+    dx=0,  # Nudges text to right side of bar
+    dy=-10  # Nudges text above bar
+).encode(
+    text=alt.Text('Price:Q', format='.2f'),
+)
+st.altair_chart(price_chart + price_chart_text, use_container_width=True)
 
 st.write(f"EPS for {year_filter} Q{quarter_filter}")
-st.altair_chart(eps_chart, use_container_width=True)
+eps_chart_text = eps_chart.mark_text(
+    align='center',
+    baseline='middle',
+    dx=0,
+    dy=-10
+).encode(
+    text=alt.Text('EPS:Q', format='.2f'),
+)
+st.altair_chart(eps_chart + eps_chart_text, use_container_width=True)
 
 st.write(f"Capital for {year_filter} Q{quarter_filter}")
 st.altair_chart(cap_chart, use_container_width=True)
 
 st.write(f"DPS for {year_filter} Q{quarter_filter}")
-st.altair_chart(dps_chart, use_container_width=True)
+dps_chart_text = dps_chart.mark_text(
+    align='center',
+    baseline='middle',
+    dx=0,
+    dy=-10
+).encode(
+    text=alt.Text('Dps:Q', format='.2f'),
+)
+st.altair_chart(dps_chart + dps_chart_text, use_container_width=True)
