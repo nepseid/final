@@ -7,7 +7,8 @@ st.set_page_config(page_title="Fundamental Analysis",
                    page_icon="bar_chart:", layout="wide")
 st.title("Fundamental Analysis")
 
-df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
+df = pd.read_excel(
+    '/Users/vuone/Desktop/Code/Fundamental Analysis/Fundamentals.xlsx', sheet_name='Sheet1')
 
 st.sidebar.header("Parameters")
 
@@ -68,16 +69,19 @@ fig_paid_up.update_traces(hovertemplate="<b>Capital:</b> %{y}")
 # EPS
 eps = df_selection.groupby(by=["SYMBOL"]).sum()[["EPS"]].sort_values(by="EPS")
 fig_eps = create_bar_chart(eps, eps.index, "EPS", "EPS")
+fig_eps.update_traces(hovertemplate="<b>EPS:</b> %{y}")
 
 # Book Value
 bookvalue = df_selection.groupby(by=["SYMBOL"]).sum()[
     ["BOOK VALUE"]].sort_values(by="BOOK VALUE")
 fig_bookvalue = create_bar_chart(
     bookvalue, bookvalue.index, "BOOK VALUE", "Book Value")
+fig_bookvalue.update_traces(hovertemplate="<b>Book Value:</b> %{y}")
 
 # DPS
 dps = df_selection.groupby(by=["SYMBOL"]).sum()[["Dps"]].sort_values(by="Dps")
 fig_dps = create_bar_chart(dps, dps.index, "Dps", "DPS")
+fig_dps.update_traces(hovertemplate="<b>DPS:</b> %{y}")
 
 # Net Profit
 netprofit = df_selection.groupby(by=["SYMBOL"]).sum()[
@@ -91,6 +95,7 @@ fig_netprofit.update_traces(hovertemplate="<b>Net Profit:</b> %{y}")
 
 pe = df_selection.groupby(by=["SYMBOL"]).sum()[["PE"]].sort_values(by="PE")
 fig_pe = create_bar_chart(pe, pe.index, "PE", "PE Ratio")
+fig_pe.update_traces(hovertemplate="<b>PE:</b> %{y}")
 
 # EPS and DPS
 
