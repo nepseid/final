@@ -34,6 +34,10 @@ if not df_filtered.empty:
         str) + "-" + df_filtered["Year"].astype(str)
     df_filtered = df_filtered.assign(Timeframe=Timeframe)
 
+    # Display the Price
+    st.markdown(
+        f"<p style='font-size:24px; font-weight:bold; text-align:center;'>Current Price Rs. {df_filtered['Price'].values[0]:.2f}</p>", unsafe_allow_html=True)
+
     fig_eps2 = px.bar(
         df_filtered,
         x="Timeframe",
