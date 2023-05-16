@@ -7,10 +7,10 @@ from altair import Scale
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
 # Create EPS Filter and DPS Filter columns based on EPS and Dps values
-df['EPS Filter'] = pd.cut(df['EPS'], bins=[-float('inf'), 0, 5, 10, 20, float(
-    'inf')], labels=['Negative', '0-5', '5-10', '10-20', '20-200'])
-df['DPS Filter'] = pd.cut(df['Dps'], bins=[-float('inf'), 0, 5, 10, 20, float(
-    'inf')], labels=['Negative', '0-5', '5-10', '10-20', '20-200'])
+df['EPS Filter'] = pd.cut(df['EPS'], bins=[-float('inf'), 0, 5, 10, 20, 50, 2000, float(
+    'inf')], labels=['Negative', '0-5', '5-10', '10-20', '20-50', '50-2000', '2000+'])
+df['DPS Filter'] = pd.cut(df['Dps'], bins=[-float('inf'), 0, 5, 10, 20, 50, 2000, float(
+    'inf')], labels=['Negative', '0-5', '5-10', '10-20', '20-50', '50-2000', '2000+'])
 
 # Sidebar filters
 year_filter = st.sidebar.selectbox(
@@ -21,9 +21,9 @@ quarter_filter = st.sidebar.selectbox(
 price_filter = st.sidebar.selectbox('Select Price Filter:', options=[
                                     'All', '0-100', '100-200', '200-250', '250-300', '300-400', '400-500', '500-700', '700-900', '900-1200', '1200-1500', '1500-2500', '2500-40000'], index=3)
 eps_filter = st.sidebar.selectbox('Select EPS Filter:', options=[
-                                  'All', 'Negative', '0-5', '5-10', '10-20', '20-200'])
+                                  'All', 'Negative', '0-5', '5-10', '10-20', '20-50', '50-2000', '2000+'])
 dps_filter = st.sidebar.selectbox('Select DPS Filter:', options=[
-                                  'All', 'Negative', '0-5', '5-10', '10-20', '20-200'])
+                                  'All', 'Negative', '0-5', '5-10', '10-20', '20-50', '50-2000', '2000+'])
 
 # Apply filters to data
 df_filtered = df[(df['Year'] == year_filter) &
@@ -44,10 +44,19 @@ if price_filter != 'All':
             df_filtered['Price'] < int(price_range[1]))]
 
 if eps_filter != 'All':
-    df_filtered = df_filtered[df_filtered['EPS Filter'] == eps_filter]
+    if eps_filter == '20-200':
+        df_filtered = df_filtered[(df_filtered['EPS'] >= 20) & (
+            df_filtered['EPS'] <= 200)]
+    else:
+        df_filtered = df_filtered[df_filtered['EPS Filter'] == eps_filter]
 
 if dps_filter != 'All':
-    df_filtered = df_filtered[df_filtered['DPS Filter'] == dps_filter]
+    if dps_filter == '20-200':
+        df_filtered = df_filtered[(df_filtered['Dps'] >= 20) & (
+            df_filtered['Dps'] <= 200)]
+    else:
+        df_filtered = df_filtered[df_filtered['DPS Filter'] == dps_filter]
+
 
 # Get unique sector values excluding "Delist"
 sector_options = df_filtered['Sector'].unique()
