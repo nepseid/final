@@ -19,7 +19,7 @@ quarter_filter = st.sidebar.selectbox(
     'Select Quarter:', options=df['Quarter'].unique(), index=1)
 
 price_filter = st.sidebar.selectbox('Select Price Filter:', options=[
-                                    'All', '0-100', '100-200', '200-300', '300-400', '400-500', '500-700', '700-900', '900-1200', '1200-1500', '1500-2500', '2500-40000'], index=2)
+                                    'All', '0-100', '100-200', '200-250', '250-300', '300-400', '400-500', '500-700', '700-900', '900-1200', '1200-1500', '1500-2500', '2500-40000'], index=3)
 eps_filter = st.sidebar.selectbox('Select EPS Filter:', options=[
                                   'All', 'Negative', '0-5', '5-10', '10-20', '20-200'])
 dps_filter = st.sidebar.selectbox('Select DPS Filter:', options=[
@@ -32,6 +32,12 @@ df_filtered = df[(df['Year'] == year_filter) &
 if price_filter != 'All':
     if price_filter == 'upto 200':
         df_filtered = df_filtered[df_filtered['Price'] < 200]
+    elif price_filter == '200-250':
+        df_filtered = df_filtered[(df_filtered['Price'] >= 200) & (
+            df_filtered['Price'] < 250)]
+    elif price_filter == '250-300':
+        df_filtered = df_filtered[(df_filtered['Price'] >= 250) & (
+            df_filtered['Price'] < 300)]
     else:
         price_range = price_filter.split('-')
         df_filtered = df_filtered[(df_filtered['Price'] >= int(price_range[0])) & (
