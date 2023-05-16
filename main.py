@@ -7,8 +7,7 @@ st.set_page_config(page_title="Fundamental Analysis",
                    page_icon="bar_chart:", layout="wide")
 st.title("Fundamental Analysis")
 
-df = pd.read_excel(
-    '/Users/vuone/Desktop/Code/Fundamental Analysis/Fundamentals.xlsx', sheet_name='Sheet1')
+df= pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
 st.sidebar.header("Parameters")
 
