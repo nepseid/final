@@ -14,7 +14,6 @@ st.title("Scrips")
 
 df1 = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
-
 Timeframe = df1["Quarter"] + "-" + df1["Year"]
 df1 = df1.assign(Timeframe=Timeframe)
 
@@ -50,7 +49,7 @@ if not df_filtered.empty:
     fig_paidup2 = px.bar(
         df_filtered,
         x="Timeframe",
-        y="PAID-UP",
+        y=df_filtered["PAID-UP"] * 1000,
         color="SYMBOL",
         facet_col="SYMBOL",
         facet_col_spacing=0.005,
@@ -95,7 +94,7 @@ if not df_filtered.empty:
     fig_capeps.add_trace(
         go.Scatter(
             x=df_filtered["Timeframe"],
-            y=df_filtered["PAID-UP"],
+            y=df_filtered["PAID-UP"]*1000,
             mode="lines",
             name="Capital",
             line=dict(color="#FBB13C")
@@ -113,8 +112,23 @@ fig_capeps.update_layout(
     title=f"<b>EPS and Capital for {symbol}, {quarter}</b>"
 )
 fig_eps2.update_layout(showlegend=False)
+fig_eps2.update_traces(
+    hovertemplate='<br>EPS: %{y}',
+    hoverlabel=dict(namelength=0),
+    texttemplate=''
+)
 fig_paidup2.update_layout(showlegend=False)
+fig_paidup2.update_traces(
+    hovertemplate='<br>Capital: %{y}',
+    hoverlabel=dict(namelength=0),
+    texttemplate=''
+)
 fig_roe.update_layout(showlegend=False)
+fig_roe.update_traces(
+    hovertemplate='<br>ROE: %{y}',
+    hoverlabel=dict(namelength=0),
+    texttemplate=''
+)
 fig_capeps.update_layout(showlegend=False)
 
 
