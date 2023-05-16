@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import altair as alt
+from altair import Scale
 
 # Load data from Excel file
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
@@ -84,12 +85,17 @@ price_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
     color=alt.Color('SYMBOL', legend=None)
 )
 
+# Multiply the 'PAID-UP' values by 1000 to convert them to billions
+df_filtered_sorted['PAID-UP_B'] = df_filtered_sorted['PAID-UP'] * 1000
+
 cap_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
     x=alt.X('SYMBOL:N', sort=None),
-    y='PAID-UP',
-    text=alt.Text('PAID-UP'),
+    y=alt.Y('PAID-UP_B:Q',
+            axis=alt.Axis(title='Paid-Up (in billions G)', format='.2s')),
+    text=alt.Text('PAID-UP_B:Q', format='.2sB'),
     color=alt.Color('SYMBOL', legend=None)
 )
+
 
 # Render charts
 
