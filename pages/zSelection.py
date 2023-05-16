@@ -53,44 +53,52 @@ sector_filter = st.sidebar.multiselect(
 # Apply sector filter
 if sector_filter:
     df_filtered = df_filtered[df_filtered['Sector'].isin(sector_filter)]
+
+# Convert 'Price' column to numerical type
+df_filtered['Price'] = pd.to_numeric(df_filtered['Price'], errors='coerce')
+
+# Sort the filtered data frame by the 'Price' column in ascending order
+df_filtered_sorted = df_filtered.sort_values('Price')
+
 # Bar charts
 
-eps_chart = alt.Chart(df_filtered).mark_bar().encode(
-    x=alt.X('SYMBOL', sort=alt.SortField(field='EPS', order='ascending')),
+eps_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
+    x=alt.X('SYMBOL:N', sort=None),
     y='EPS',
     tooltip=['SYMBOL', 'EPS'],
-    text=alt.Text('EPS', format='.2f'),
+    text=alt.Text('EPS'),
     color=alt.Color('SYMBOL', legend=None)
 )
 
-dps_chart = alt.Chart(df_filtered).mark_bar().encode(
-    x=alt.X('SYMBOL', sort=alt.SortField(field='Dps', order='ascending')),
+dps_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
+    x=alt.X('SYMBOL:N', sort=None),
     y='Dps',
-    text=alt.Text('Dps', format='.2f'),
+    text=alt.Text('Dps'),
     color=alt.Color('SYMBOL', legend=None)
 )
 
-price_chart = alt.Chart(df_filtered).mark_bar().encode(
-    x=alt.X('SYMBOL', sort=alt.SortField(field='Price', order='ascending')),
+price_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
+    x=alt.X('SYMBOL:N', sort=None),
     y='Price',
-    text=alt.Text('Price', format='.2f'),
+    text=alt.Text('Price'),
     color=alt.Color('SYMBOL', legend=None)
 )
 
-cap_chart = alt.Chart(df_filtered).mark_bar().encode(
-    x=alt.X('SYMBOL', sort=alt.SortField(field='Price', order='ascending')),
+cap_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
+    x=alt.X('SYMBOL:N', sort=None),
     y='PAID-UP',
-    text=alt.Text('Price', format='.2f'),
+    text=alt.Text('PAID-UP'),
     color=alt.Color('SYMBOL', legend=None)
 )
+
 # Render charts
 
 st.write(f"Price for {year_filter} Q{quarter_filter}")
 price_chart_text = price_chart.mark_text(
     align='center',
     baseline='middle',
-    dx=0,  # Nudges text to right side of bar
-    dy=-10  # Nudges text above bar
+    dx=0,  # Nudges text to the right side of the bar
+    dy=-10  # Nudges text above the bar
 ).encode(
     text=alt.Text('Price:Q', format='.2f'),
 )
