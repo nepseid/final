@@ -2,14 +2,6 @@ import pandas as pd
 import streamlit as st
 import altair as alt
 
-
-hide_menu_style = """
-    <style>
-        #MainMenu {display:none;}
-    </style>
-"""
-
-st.markdown(hide_menu_style, unsafe_allow_html=True)
 # Load data from Excel file
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
@@ -81,14 +73,24 @@ price_chart = alt.Chart(df_filtered).mark_bar().encode(
     color=alt.Color('SYMBOL', legend=None)
 )
 
+cap_chart = alt.Chart(df_filtered).mark_bar().encode(
+    x=alt.X('SYMBOL', sort=alt.SortField(field='Price', order='ascending')),
+    y='PAID-UP',
+    text=alt.Text('Price', format='.2f'),
+    color=alt.Color('SYMBOL', legend=None)
+)
+
 
 # Render charts
 
-st.write(f"#Price Bar Chart for {year_filter} Q{quarter_filter}")
+st.write(f"Price for {year_filter} Q{quarter_filter}")
 st.altair_chart(price_chart, use_container_width=True)
 
-st.write(f"#EPS Bar Chart for {year_filter} Q{quarter_filter}")
+st.write(f"EPS for {year_filter} Q{quarter_filter}")
 st.altair_chart(eps_chart, use_container_width=True)
 
-st.write(f"#DPS Bar Chart for {year_filter} Q{quarter_filter}")
+st.write(f"Capital for {year_filter} Q{quarter_filter}")
+st.altair_chart(cap_chart, use_container_width=True)
+
+st.write(f"DPS for {year_filter} Q{quarter_filter}")
 st.altair_chart(dps_chart, use_container_width=True)
