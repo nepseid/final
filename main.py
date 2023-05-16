@@ -96,6 +96,13 @@ pe = df_selection.groupby(by=["SYMBOL"]).sum()[["PE"]].sort_values(by="PE")
 fig_pe = create_bar_chart(pe, pe.index, "PE", "PE Ratio")
 fig_pe.update_traces(hovertemplate="<b>PE:</b> %{y}")
 
+# NPL
+
+npl = df_selection.groupby(by=["SYMBOL"]).sum()[["NPL"]].sort_values(by="NPL")
+fig_npl = create_bar_chart(npl, npl.index, "NPL", "NPL")
+fig_npl.update_traces(hovertemplate="<b>NPL:</b> %{y}")
+
+
 # EPS and DPS
 
 eps_dps = df_selection.groupby(by=["SYMBOL"]).sum()[
@@ -127,13 +134,15 @@ fig_eps_dps.update_layout(
     legend=dict(x=0.7, y=1),
 )
 
+
 # Display charts
 
 st.plotly_chart(fig_price, use_container_width=True)
 st.plotly_chart(fig_paid_up, use_container_width=True)
 st.plotly_chart(fig_eps_dps, use_container_width=True)
 st.plotly_chart(fig_bookvalue, use_container_width=True)
-st.plotly_chart(fig_eps, use_container_width=True)
-st.plotly_chart(fig_dps, use_container_width=True)
 st.plotly_chart(fig_pe, use_container_width=True)
 st.plotly_chart(fig_netprofit, use_container_width=True)
+st.plotly_chart(fig_npl, use_container_width=True)
+st.plotly_chart(fig_eps, use_container_width=True)
+st.plotly_chart(fig_dps, use_container_width=True)
