@@ -7,7 +7,8 @@ st.set_page_config(page_title="Fundamental Analysis",
                    page_icon="bar_chart:", layout="wide")
 st.title("Fundamental Analysis")
 
-df= pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
+df = pd.read_excel(
+    '/Users/vuone/Desktop/Code/Fundamental Analysis/Fundamentals.xlsx', sheet_name='Sheet1')
 
 st.sidebar.header("Parameters")
 
@@ -36,11 +37,12 @@ def format_value(value):
 
 
 def create_bar_chart(data, x, y, title):
-    data["price"] = data[y].apply(format_value)
+    data["v"] = data[y].apply(format_value)
     fig = px.bar(
         data,
         x=x,
         y=y,
+        text=data["v"],
         orientation="v",
         title=f"<b>{title}</b>",
         color_discrete_sequence=["#0083B8"] * len(data),
@@ -54,6 +56,7 @@ def create_bar_chart(data, x, y, title):
 price = df_selection.groupby(by=["SYMBOL"]).sum()[
     ["Price"]].sort_values(by="Price")
 fig_price = create_bar_chart(price, price.index, "Price", "Last Traded Price")
+fig_price.update_traces(hovertemplate="<b>Price:</b> %{y}")
 
 # Capital Framework
 paid_up = df_selection.groupby(by=["SYMBOL"]).sum()[
