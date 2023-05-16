@@ -41,7 +41,6 @@ def create_bar_chart(data, x, y, title):
         data,
         x=x,
         y=y,
-        text=data["price"],
         orientation="v",
         title=f"<b>{title}</b>",
         color_discrete_sequence=["#0083B8"] * len(data),
