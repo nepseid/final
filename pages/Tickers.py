@@ -60,6 +60,18 @@ if not df_filtered.empty:
         template="plotly_white"
     )
 
+    fig_roe = px.bar(
+        df_filtered,
+        x="Timeframe",
+        y="ROE",
+        color="SYMBOL",
+        facet_col="SYMBOL",
+        facet_col_spacing=0.005,
+        orientation="v",
+        title=f"<b>ROE for {symbol}, {quarter}</b>",
+        color_discrete_sequence=["#0083B8"],
+        template="plotly_white"
+    )
     # Create a subplot with two y-axes
     fig_capeps = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -102,6 +114,7 @@ fig_capeps.update_layout(
 )
 fig_eps2.update_layout(showlegend=False)
 fig_paidup2.update_layout(showlegend=False)
+fig_roe.update_layout(showlegend=False)
 fig_capeps.update_layout(showlegend=False)
 
 
@@ -155,6 +168,7 @@ if not df_filtered_combo.empty:
 
     st.plotly_chart(fig_eps2, use_container_width=True)
     st.plotly_chart(fig_combo, use_container_width=True)
+    st.plotly_chart(fig_roe, use_container_width=True)
     st.plotly_chart(fig_paidup2, use_container_width=True)
     st.plotly_chart(fig_capeps, use_container_width=True)
 
