@@ -6,21 +6,12 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 
-st.set_page_config(
-    page_title="Fundamental Analysis",
-    page_icon=":bar_chart:",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
+st.set_page_config(page_title="Fundamental Analysis",
+                   page_icon="bar_chart:",
+                   layout="wide"
+                   )
 
 st.title("Fundamental Analysis")
-
-hide_menu_style = """
-    <style>
-        #MainMenu {display:none;}
-    </style>
-"""
-st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
@@ -61,19 +52,11 @@ price = (
 fig_price = px.bar(
     price,
     x=price.index,
-    y="Price",
+    y=("Price"),
     orientation="v",
     title="<b>Last Traded Price </b>",
     color_discrete_sequence=["#0083B8"],
     template="plotly_white",
-)
-
-fig_price.update_layout(
-    # Disable zooming and panning
-    dragmode=False,
-    uirevision="True",
-    xaxis={"fixedrange": True},
-    yaxis={"fixedrange": True},
 )
 
 
@@ -81,22 +64,20 @@ paid_up = (
     df_selection.groupby(by=["SYMBOL"]).sum()[
         ["PAID-UP"]].sort_values(by="PAID-UP")
 )
+# Multiply the "PAID-UP" values by 1000
+paid_up["PAID-UP"] *= 1000
+
 fig_paid_up = px.bar(
     paid_up,
     x=paid_up.index,
-    y=("PAID-UP"),
+    y="PAID-UP",
     orientation="v",
     title="<b>Capital Framework</b>",
     color_discrete_sequence=["#0083B8"]*len(paid_up),
-    template="plotly_white",
+    template="plotly_white"
 )
-fig_paid_up.update_layout(
-    # Disable zooming and panning
-    dragmode=False,
-    uirevision="True",
-    xaxis={"fixedrange": True},
-    yaxis={"fixedrange": True},
-)
+
+
 eps = (
     df_selection.groupby(by=["SYMBOL"]).sum()[
         ["EPS"]].sort_values(by="EPS")
@@ -111,13 +92,7 @@ fig_eps = px.bar(
     color_discrete_sequence=["#0083B8"]*len(eps),
     template="plotly_white",
 )
-fig_eps.update_layout(
-    # Disable zooming and panning
-    dragmode=False,
-    uirevision="True",
-    xaxis={"fixedrange": True},
-    yaxis={"fixedrange": True},
-)
+
 bookvalue = (
     df_selection.groupby(by=["SYMBOL"]).sum()[
         ["BOOK VALUE"]].sort_values(by="BOOK VALUE")
@@ -131,13 +106,6 @@ fig_bookvalue = px.bar(
     title="<b>Book Value</b>",
     color_discrete_sequence=["#0083B8"]*len(eps),
     template="plotly_white",
-)
-fig_bookvalue.update_layout(
-    # Disable zooming and panning
-    dragmode=False,
-    uirevision="True",
-    xaxis={"fixedrange": True},
-    yaxis={"fixedrange": True},
 )
 dps = (
     df_selection.groupby(by=["SYMBOL"]).sum()[
@@ -155,13 +123,7 @@ fig_dps = px.bar(
     template="plotly_white",
 )
 
-fig_dps.update_layout(
-    # Disable zooming and panning
-    dragmode=False,
-    uirevision="True",
-    xaxis={"fixedrange": True},
-    yaxis={"fixedrange": True},
-)
+
 netprofit = (
     df_selection.groupby(by=["SYMBOL"]).sum()[
         ["NET PROFIT"]].sort_values(by="NET PROFIT")
@@ -178,13 +140,6 @@ fig_netprofit = px.bar(
     template="plotly_white",
 )
 
-fig_netprofit.update_layout(
-    # Disable zooming and panning
-    dragmode=False,
-    uirevision="True",
-    xaxis={"fixedrange": True},
-    yaxis={"fixedrange": True},
-)
 pe = (
     df_selection.groupby(by=["SYMBOL"]).sum()[
         ["PE"]].sort_values(by="PE")
@@ -200,15 +155,6 @@ fig_pe = px.bar(
     color_discrete_sequence=["#0083B8"]*len(eps),
     template="plotly_white",
 )
-
-fig_pe.update_layout(
-    # Disable zooming and panning
-    dragmode=False,
-    uirevision="True",
-    xaxis={"fixedrange": True},
-    yaxis={"fixedrange": True},
-)
-
 eps_dps = df_selection.groupby(by=["SYMBOL"]).sum()[
     ["EPS", "Dps"]].sort_values(by="EPS")
 
@@ -239,7 +185,6 @@ fig_eps_dps.update_layout(
     legend=dict(x=0.7, y=1),
     yaxis=dict(range=[0, max(eps_dps["EPS"].max(), eps_dps["Dps"].max())]),
     yaxis2=dict(range=[0, max(eps_dps["EPS"].max(), eps_dps["Dps"].max())]),
-    dragmode=False
 )
 
 st.plotly_chart(fig_price, use_container_width=True)
