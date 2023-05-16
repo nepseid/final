@@ -36,12 +36,12 @@ def format_value(value):
 
 
 def create_bar_chart(data, x, y, title):
-    data["formatted_value"] = data[y].apply(format_value)
+    data["price"] = data[y].apply(format_value)
     fig = px.bar(
         data,
         x=x,
         y=y,
-        text=data["formatted_value"],
+        text=data["price"],
         orientation="v",
         title=f"<b>{title}</b>",
         color_discrete_sequence=["#0083B8"] * len(data),
