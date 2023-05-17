@@ -120,6 +120,32 @@ if not df_filtered.empty:
         texttemplate='%{y}',
         textposition='auto'  # Show values on the bars
     )
+    fig_bookvalue = px.bar(
+        df_filtered,
+        x="Timeframe",
+        y=df_filtered["BOOK VALUE"],
+        color="SYMBOL",
+        facet_col="SYMBOL",
+        facet_col_spacing=0.005,
+        orientation="v",
+        title=f"<b>Book Value {symbol}, {quarter}</b>",
+        color_discrete_sequence=["#0083B8"],
+        template="plotly_white"
+    )
+
+    fig_bookvalue.update_layout(
+        showlegend=False,
+        dragmode=False,  # Disable zooming
+        xaxis=dict(fixedrange=True),
+        yaxis=dict(fixedrange=True)
+    )
+
+    fig_bookvalue.update_traces(
+        hovertemplate='<br>Book Value: %{y}',
+        hoverlabel=dict(namelength=0),
+        texttemplate='%{y}',  # Format values in thousands, millions, billions
+        textposition='auto'  # Show values on the bars
+    )
 
     # Create a subplot with two y-axes
     fig_capeps = make_subplots(specs=[[{"secondary_y": True}]])
@@ -238,6 +264,7 @@ if not df_filtered_combo.empty:
 
     st.plotly_chart(fig_eps2, use_container_width=True)
     st.plotly_chart(fig_combo, use_container_width=True)
+    st.plotly_chart(fig_bookvalue, use_container_width=True)
     st.plotly_chart(fig_roe, use_container_width=True)
     st.plotly_chart(fig_paidup2, use_container_width=True)
     st.plotly_chart(fig_capeps, use_container_width=True)
