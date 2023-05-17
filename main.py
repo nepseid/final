@@ -48,6 +48,14 @@ def create_bar_chart(data, x, y, title):
         template="plotly_white"
     )
     fig.update_traces(textposition="outside")
+
+    # Disable zooming
+    fig.update_layout(
+        dragmode=False,
+        xaxis=dict(fixedrange=True),
+        yaxis=dict(fixedrange=True)
+    )
+
     return fig
 
 
@@ -132,6 +140,11 @@ fig_eps_dps.update_layout(
     xaxis_title="Symbol",
     yaxis_title="Value",
     legend=dict(x=0.7, y=1),
+
+    # Disable zooming
+    dragmode=False,
+    xaxis=dict(fixedrange=True),
+    yaxis=dict(fixedrange=True)
 )
 
 
