@@ -51,6 +51,21 @@ if not df_filtered.empty:
         template="plotly_white"
     )
 
+    fig_eps2.update_layout(
+        showlegend=False,
+        dragmode=False,  # Disable zooming
+        xaxis=dict(fixedrange=True),
+        yaxis=dict(fixedrange=True)
+    )
+
+    fig_eps2.update_traces(
+        hovertemplate='<br>EPS: %{y}',
+        hoverlabel=dict(namelength=0),
+        # Format values in thousands, millions, billions
+        texttemplate='%{y:.2s}',
+        textposition='auto'  # Show values on the bars
+    )
+
     fig_paidup2 = px.bar(
         df_filtered,
         x="Timeframe",
@@ -62,6 +77,20 @@ if not df_filtered.empty:
         title=f"<b>Capital for {symbol}, {quarter}</b>",
         color_discrete_sequence=["#0083B8"],
         template="plotly_white"
+    )
+
+    fig_paidup2.update_layout(
+        showlegend=False,
+        dragmode=False,  # Disable zooming
+        xaxis=dict(fixedrange=True),
+        yaxis=dict(fixedrange=True)
+    )
+
+    fig_paidup2.update_traces(
+        hovertemplate='<br>Capital: %{y}',
+        hoverlabel=dict(namelength=0),
+        texttemplate='%{y}',  # Format values in thousands, millions, billions
+        textposition='auto'  # Show values on the bars
     )
 
     fig_roe = px.bar(
@@ -77,10 +106,25 @@ if not df_filtered.empty:
         template="plotly_white"
     )
 
+    fig_roe.update_layout(
+        showlegend=False,
+        dragmode=False,  # Disable zooming
+        xaxis=dict(fixedrange=True),
+        yaxis=dict(fixedrange=True)
+    )
+
+    fig_roe.update_traces(
+        hovertemplate='<br>ROE: %{y}',
+        hoverlabel=dict(namelength=0),
+        # Format values in thousands, millions, billions
+        texttemplate='%{y}',
+        textposition='auto'  # Show values on the bars
+    )
+
     # Create a subplot with two y-axes
     fig_capeps = make_subplots(specs=[[{"secondary_y": True}]])
 
-    # Add a bar chart to the primary y-axis
+# Add a bar chart to the primary y-axis
     fig_capeps.add_trace(
         px.bar(
             df_filtered,
@@ -96,7 +140,7 @@ if not df_filtered.empty:
         secondary_y=False
     )
 
-    # Add a line chart to the secondary y-axis
+# Add a line chart to the secondary y-axis
     fig_capeps.add_trace(
         go.Scatter(
             x=df_filtered["Timeframe"],
@@ -107,39 +151,20 @@ if not df_filtered.empty:
         ),
         secondary_y=True
     )
-    # Set the axis labels and titles
-fig_capeps.update_xaxes(title_text="Timeframe")
-fig_capeps.update_yaxes(title_text="EPS", secondary_y=False)
-fig_capeps.update_yaxes(title_text="PAID-UP", secondary_y=True)
+
+# Set the axis labels and titles
+    fig_capeps.update_xaxes(title_text="Timeframe", fixedrange=True)
+    fig_capeps.update_yaxes(
+        title_text="EPS", secondary_y=False, fixedrange=True)
+    fig_capeps.update_yaxes(title_text="PAID-UP",
+                            secondary_y=True, fixedrange=True)
 
 # Set the figure title
-fig_capeps.update_layout(
-    title=f"<b>EPS and Capital for {symbol}, {quarter}</b>"
-)
-fig_eps2.update_layout(showlegend=False)
-fig_eps2.update_traces(
-    hovertemplate='<br>EPS: %{y}',
-    hoverlabel=dict(namelength=0),
-    texttemplate='%{y:.2s}',  # Format values in thousands, millions, billions
-    textposition='auto'  # Show values on the bars
-)
+    fig_capeps.update_layout(
+        title=f"<b>EPS and Capital for {symbol}, {quarter}</b>",
+        dragmode=False  # Disable zooming
+    )
 
-fig_paidup2.update_layout(showlegend=False)
-fig_paidup2.update_traces(
-    hovertemplate='<br>Capital: %{y}',
-    hoverlabel=dict(namelength=0),
-    texttemplate='%{y}',  # Format values in thousands, millions, billions
-    textposition='auto'  # Show values on the bars
-)
-fig_roe.update_layout(showlegend=False)
-fig_roe.update_traces(
-    hovertemplate='<br>ROE: %{y}',
-    hoverlabel=dict(namelength=0),
-    # Format values in thousands, millions, billions
-    texttemplate='%{y}',
-    textposition='auto'  # Show values on the bars
-)
-fig_capeps.update_layout(showlegend=False)
 
 # Filter the dataframe for NPL chart (with the latest year at index 6)
 # Get the latest year from the unique values
@@ -163,6 +188,14 @@ if not df_npl.empty:
         texttemplate='%{y:.2s}',
         textposition='auto'  # Show values on the bars
     )
+
+    # Set the axis labels and disable zooming
+    fig_npl.update_xaxes(fixedrange=True)
+    fig_npl.update_yaxes(fixedrange=True)
+
+    # Disable zooming
+    fig_npl.update_layout(dragmode=False)
+
 
 # Filter the dataframe for cash and bonus combo chart (without quarter filter)
 df_filtered_combo = df1[df1["SYMBOL"] == symbol]
@@ -193,6 +226,13 @@ if not df_filtered_combo.empty:
         customdata=np.stack(
             (avg_cash_bonus["Bonus"], avg_cash_bonus["Cash"]), axis=-1)
     )
+
+    # Set the axis labels and disable zooming
+    fig_combo.update_xaxes(fixedrange=True)
+    fig_combo.update_yaxes(fixedrange=True)
+
+    # Disable zooming
+    fig_combo.update_layout(dragmode=False)
 
     # Create a combo bar chart with average values
 
