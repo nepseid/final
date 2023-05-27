@@ -23,7 +23,7 @@ symbol = st.sidebar.selectbox(
     "Symbol", sorted(df1["SYMBOL"].unique()), index=1
 )
 quarter = st.sidebar.selectbox(
-    "Quarter", sorted(df1["Quarter"].unique()), index=0
+    "Quarter", sorted(df1["Quarter"].unique()), index=2
 )
 
 # Filter the dataframe based on the sidebar inputs
@@ -222,6 +222,36 @@ if not df_npl.empty:
     # Disable zooming
     fig_npl.update_layout(dragmode=False)
 
+# Filter the dataframe for profit chart (with the latest year at index 6)
+# Get the latest year from the unique values
+latest_year = df1["Year"].unique()[-1]
+df_profit = df1[(df1["SYMBOL"] == symbol) & (df1["Year"] == latest_year)]
+
+if not df_profit.empty:
+    fig_profit = px.bar(
+        df_profit,
+        x="Quarter",
+        y=df_profit["NET PROFIT"] * 1000,
+        title=f"<b>Net Profit for {symbol}, {df_profit['Year'].iloc[-1]}</b>",
+        color_discrete_sequence=["#0083B8"],
+        template="plotly_white"
+    )
+
+    fig_profit.update_traces(
+        hovertemplate='<br>Net Profit: %{y}',
+        hoverlabel=dict(namelength=0),
+        # Format values in thousands, millions, billions
+        texttemplate='%{y:.2s}',
+        textposition='auto'  # Show values on the bars
+    )
+
+    # Set the axis labels and disable zooming
+    fig_profit.update_xaxes(fixedrange=True)
+    fig_profit.update_yaxes(fixedrange=True)
+
+    # Disable zooming
+    fig_profit.update_layout(dragmode=False)
+
 
 # Filter the dataframe for cash and bonus combo chart (without quarter filter)
 df_filtered_combo = df1[df1["SYMBOL"] == symbol]
@@ -267,6 +297,11 @@ if not df_filtered_combo.empty:
     st.plotly_chart(fig_bookvalue, use_container_width=True)
     st.plotly_chart(fig_roe, use_container_width=True)
     st.plotly_chart(fig_paidup2, use_container_width=True)
+    if fig_profit is not None:
+        st.plotly_chart(fig_profit, use_container_width=True)
+    else:
+        st.write(
+            "No Netprofit data available for the selected symbol and the latest year.")
     st.plotly_chart(fig_capeps, use_container_width=True)
     if fig_npl is not None:
         st.plotly_chart(fig_npl, use_container_width=True)
