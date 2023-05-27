@@ -66,6 +66,34 @@ if not df_filtered.empty:
         textposition='auto'  # Show values on the bars
     )
 
+    fig_dps2 = px.bar(
+        df_filtered,
+        x="Timeframe",
+        y="Dps",
+        color="SYMBOL",
+        facet_col="SYMBOL",
+        facet_col_spacing=0.005,
+        orientation="v",
+        title=f"<b>DPS for {symbol}, {quarter}</b>",
+        color_discrete_sequence=["#0083B8"],
+        template="plotly_white"
+    )
+
+    fig_dps2.update_layout(
+        showlegend=False,
+        dragmode=False,  # Disable zooming
+        xaxis=dict(fixedrange=True),
+        yaxis=dict(fixedrange=True)
+    )
+
+    fig_dps2.update_traces(
+        hovertemplate='<br>DPS: %{y}',
+        hoverlabel=dict(namelength=0),
+        # Format values in thousands, millions, billions
+        texttemplate='%{y:.2s}',
+        textposition='auto'  # Show values on the bars
+    )
+
     fig_paidup2 = px.bar(
         df_filtered,
         x="Timeframe",
@@ -211,7 +239,7 @@ if not df_npl.empty:
         hovertemplate='<br>NPL: %{y}',
         hoverlabel=dict(namelength=0),
         # Format values in thousands, millions, billions
-        texttemplate='%{y:.2s}',
+        texttemplate='%{y}',
         textposition='auto'  # Show values on the bars
     )
 
@@ -307,5 +335,6 @@ if not df_filtered_combo.empty:
         st.plotly_chart(fig_npl, use_container_width=True)
     else:
         st.write("No NPL data available for the selected symbol and the latest year.")
+    st.plotly_chart(fig_dps2, use_container_width=True)
 else:
     st.write("No data available for the selected symbol.")
