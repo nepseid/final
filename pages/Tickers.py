@@ -23,7 +23,7 @@ symbol = st.sidebar.selectbox(
     "Symbol", sorted(df1["SYMBOL"].unique()), index=1
 )
 quarter = st.sidebar.selectbox(
-    "Quarter", sorted(df1["Quarter"].unique()), index=3
+    "Quarter", sorted(df1["Quarter"].unique()), index=1
 )
 
 # Filter the dataframe based on the sidebar inputs
