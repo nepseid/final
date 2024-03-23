@@ -15,9 +15,9 @@ Sector = st.sidebar.selectbox(
     "Sector:", options=sorted(df["Sector"].unique()), index=0)
 df_sector = df.query("Sector == @Sector")
 
-Year = st.sidebar.selectbox("Year", sorted(df["Year"].unique()), index=7)
+Year = st.sidebar.selectbox("Year", sorted(df["Year"].unique()), index=6)
 Quarter = st.sidebar.selectbox(
-    "Quarter", sorted(df["Quarter"].unique()), index=1)
+    "Quarter", sorted(df["Quarter"].unique()), index=2)
 SYMBOL = st.sidebar.multiselect("Scips:", options=df_sector["SYMBOL"].unique(
 ), default=df_sector["SYMBOL"].unique())
 df_selection = df.query(
@@ -146,11 +146,17 @@ fig_eps_dps.update_layout(
     xaxis=dict(fixedrange=True),
     yaxis=dict(fixedrange=True)
 )
+# Public Shares
 
+ps = df_selection.groupby(by=["SYMBOL"]).sum(
+)[["Public Shares"]].sort_values(by="Public Shares")
+fig_ps = create_bar_chart(ps, ps.index, "Public Shares", "Public Shares")
+fig_ps.update_traces(hovertemplate="<b>Public Shares:</b> %{y}")
 
 # Display charts
 
 st.plotly_chart(fig_price, use_container_width=True)
+st.plotly_chart(fig_ps, use_container_width=True)
 st.plotly_chart(fig_paid_up, use_container_width=True)
 st.plotly_chart(fig_eps_dps, use_container_width=True)
 st.plotly_chart(fig_bookvalue, use_container_width=True)
