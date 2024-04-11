@@ -49,7 +49,9 @@ sector_options = df_filtered['Sector'].unique()
 sector_options = [sector for sector in sector_options if sector != 'Delist']
 
 # Sector filter with dropdown list and checkboxes
-selected_sectors = st.sidebar.multiselect('Select Sectors:', options=sector_options, default=sector_options)
+sector_filter = st.sidebar.multiselect(
+    'Select Sector:', sector_options, default=sector_options)
+
 
 
 
