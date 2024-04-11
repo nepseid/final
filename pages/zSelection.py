@@ -103,7 +103,7 @@ cap_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
 
 # Render charts
 
-st.write(f"Price for {year_filter} Q{quarter_filter}")
+st.write(f"Current Price")
 price_chart_text = price_chart.mark_text(
     align='center',
     baseline='middle',
