@@ -20,7 +20,7 @@ quarter_filter = st.sidebar.selectbox(
     'Select Quarter:', options=df['Quarter'].unique(), index=0)
 
 price_filter = st.sidebar.selectbox('Select Price Filter:', options=[
-                                    'All', '0-100', '100-200', '200-250', '250-300', '300-400', '400-500', '500-700', '700-900', '900-1200', '1200-1500', '1500-2500', '2500-40000'], index=3)
+                                    'All', '0-100', '100-200', '200-300', '300-400', '400-500', '500-700', '700-900', '900-1200', '1200-1500', '1500-2500', '2500-400000'], index=3)
 eps_filter = st.sidebar.selectbox('Select EPS Filter:', options=[
                                   'All', 'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
 dps_filter = st.sidebar.selectbox('Select DPS Filter:', options=[
