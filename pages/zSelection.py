@@ -6,13 +6,6 @@ from altair import Scale
 # Load data from Excel file
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
-# Update EPS Filter and DPS Filter columns based on modified criteria
-df['EPS Filter'] = pd.cut(df['EPS'], bins=[-float('inf'), 0, 5, 10, 20, 50, float('inf')], labels=[
-    'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
-df['DPS Filter'] = pd.cut(df['Dps'], bins=[-float('inf'), 0, 5, 10, 20, 50, float('inf')], labels=[
-    'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
-
-
 # Sidebar filters
 year_filter = st.sidebar.selectbox(
     'Select Year:', options=df['Year'].unique(), index=7)
@@ -22,9 +15,9 @@ quarter_filter = st.sidebar.selectbox(
 price_filter = st.sidebar.selectbox('Select Price Filter:', options=[
                                     'All', '0-100', '100-200', '200-300', '300-400', '400-500', '500-700', '700-900', '900-1200', '1200-1500', '1500-2500', '2500-400000'], index=3)
 eps_filter = st.sidebar.selectbox('Select EPS Filter:', options=[
-                                  'All', 'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
+                                  'All', 'Positive', 'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
 dps_filter = st.sidebar.selectbox('Select DPS Filter:', options=[
-                                  'All', 'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
+                                  'All', 'Positive', 'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
 
 
 # Apply filters to data
@@ -46,14 +39,18 @@ if price_filter != 'All':
             df_filtered['Price'] < int(price_range[1]))]
 
 if eps_filter != 'All':
-    if eps_filter == '20-200':
+    if eps_filter == 'Positive':
+        df_filtered = df_filtered[df_filtered['EPS'] > 0]
+    elif eps_filter == '20-200':
         df_filtered = df_filtered[(df_filtered['EPS'] >= 20) & (
             df_filtered['EPS'] <= 200)]
     else:
         df_filtered = df_filtered[df_filtered['EPS Filter'] == eps_filter]
 
 if dps_filter != 'All':
-    if dps_filter == '20-200':
+    if dps_filter == 'Positive':
+        df_filtered = df_filtered[df_filtered['Dps'] > 0]
+    elif dps_filter == '20-200':
         df_filtered = df_filtered[(df_filtered['Dps'] >= 20) & (
             df_filtered['Dps'] <= 200)]
     else:
