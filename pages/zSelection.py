@@ -100,6 +100,45 @@ cap_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
     color=alt.Color('SYMBOL', legend=None)
 )
 
+pe_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
+    x=alt.X('SYMBOL:N', sort=None),
+    y='PE',
+    tooltip=['SYMBOL', 'PE'],
+    text=alt.Text('PE'),
+    color=alt.Color('SYMBOL', legend=None)
+)
+
+public_shares_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
+    x=alt.X('SYMBOL:N', sort=None),
+    y='Public Shares',
+    tooltip=['SYMBOL', 'Public Shares'],
+    text=alt.Text('Public Shares'),
+    color=alt.Color('SYMBOL', legend=None)
+)
+
+book_value_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
+    x=alt.X('SYMBOL:N', sort=None),
+    y='BOOK VALUE',
+    tooltip=['SYMBOL', 'BOOK VALUE'],
+    text=alt.Text('BOOK VALUE'),
+    color=alt.Color('SYMBOL', legend=None)
+)
+
+roe_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
+    x=alt.X('SYMBOL:N', sort=None),
+    y='ROE',
+    tooltip=['SYMBOL', 'ROE'],
+    text=alt.Text('ROE'),
+    color=alt.Color('SYMBOL', legend=None)
+)
+
+npl_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
+    x=alt.X('SYMBOL:N', sort=None),
+    y='NPL',
+    tooltip=['SYMBOL', 'NPL'],
+    text=alt.Text('NPL'),
+    color=alt.Color('SYMBOL', legend=None)
+)
 
 # Render charts
 
@@ -124,6 +163,27 @@ eps_chart_text = eps_chart.mark_text(
     text=alt.Text('EPS:Q', format='.2f'),
 )
 st.altair_chart(eps_chart + eps_chart_text, use_container_width=True)
+
+st.write(f"PE for {year_filter} Q{quarter_filter}")
+st.altair_chart(pe_chart, use_container_width=True)
+
+st.write(f"Public Shares for {year_filter} Q{quarter_filter}")
+st.altair_chart(public_shares_chart, use_container_width=True)
+
+st.write(f"PE for {year_filter} Q{quarter_filter}")
+st.altair_chart(pe_chart, use_container_width=True)
+
+st.write(f"BOOK VALUE for {year_filter} Q{quarter_filter}")
+st.altair_chart(book_value_chart, use_container_width=True)
+
+st.write(f"Capital for {year_filter} Q{quarter_filter}")
+st.altair_chart(cap_chart, use_container_width=True)
+
+st.write(f"ROE for {year_filter} Q{quarter_filter}")
+st.altair_chart(roe_chart, use_container_width=True)
+
+st.write(f"NPL for {year_filter} Q{quarter_filter}")
+st.altair_chart(npl_chart, use_container_width=True)
 
 st.write(f"Capital for {year_filter} Q{quarter_filter}")
 st.altair_chart(cap_chart, use_container_width=True)
