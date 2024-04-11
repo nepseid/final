@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
 import altair as alt
-from altair import Scale
 
 # Load data from Excel file
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
@@ -12,31 +11,19 @@ year_filter = st.sidebar.selectbox(
 quarter_filter = st.sidebar.selectbox(
     'Select Quarter:', options=df['Quarter'].unique(), index=0)
 
-price_filter = st.sidebar.selectbox('Select Price Filter:', options=[
-                                    'All', '0-100', '100-200', '200-300', '300-400', '400-500', '500-700', '700-900', '900-1200', '1200-1500', '1500-2500', '2500-400000'], index=3)
-eps_filter = st.sidebar.selectbox('Select EPS Filter:', options=[
-                                  'All', 'Positive', 'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
-dps_filter = st.sidebar.selectbox('Select DPS Filter:', options=[
-                                  'All', 'Positive', 'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
+from_price = st.sidebar.number_input("From Price (Rs)", value=100)
+to_price = st.sidebar.number_input("To Price (Rs)", value=400)
 
+eps_filter = st.sidebar.selectbox('Select EPS Filter:', options=[
+    'All', 'Positive', 'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
+dps_filter = st.sidebar.selectbox('Select DPS Filter:', options=[
+    'All', 'Positive', 'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
 
 # Apply filters to data
 df_filtered = df[(df['Year'] == year_filter) &
-                 (df['Quarter'] == quarter_filter)]
-
-if price_filter != 'All':
-    if price_filter == 'upto 200':
-        df_filtered = df_filtered[df_filtered['Price'] < 200]
-    elif price_filter == '200-250':
-        df_filtered = df_filtered[(df_filtered['Price'] >= 200) & (
-            df_filtered['Price'] < 250)]
-    elif price_filter == '250-300':
-        df_filtered = df_filtered[(df_filtered['Price'] >= 250) & (
-            df_filtered['Price'] < 300)]
-    else:
-        price_range = price_filter.split('-')
-        df_filtered = df_filtered[(df_filtered['Price'] >= int(price_range[0])) & (
-            df_filtered['Price'] < int(price_range[1]))]
+                 (df['Quarter'] == quarter_filter) &
+                 (df['Price'] >= from_price) &
+                 (df['Price'] <= to_price)]
 
 if eps_filter != 'All':
     if eps_filter == 'Positive':
