@@ -6,11 +6,12 @@ from altair import Scale
 # Load data from Excel file
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
-# Create EPS Filter and DPS Filter columns based on EPS and Dps values
-df['EPS Filter'] = pd.cut(df['EPS'], bins=[-float('inf'), 0, 5, 10, 20, 50, 2000, float(
-    'inf')], labels=['Negative', '0-5', '5-10', '10-20', '20-50', '50-2000', '2000+'])
-df['DPS Filter'] = pd.cut(df['Dps'], bins=[-float('inf'), 0, 5, 10, 20, 50, 2000, float(
-    'inf')], labels=['Negative', '0-5', '5-10', '10-20', '20-50', '50-2000', '2000+'])
+# Update EPS Filter and DPS Filter columns based on modified criteria
+df['EPS Filter'] = pd.cut(df['EPS'], bins=[-float('inf'), 0, 5, 10, 20, 50, float('inf')], labels=[
+    'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
+df['DPS Filter'] = pd.cut(df['Dps'], bins=[-float('inf'), 0, 5, 10, 20, 50, float('inf')], labels=[
+    'Negative', 'More than 0', 'More than 5', 'More than 10', 'More than 20', 'More than 50'])
+
 
 # Sidebar filters
 year_filter = st.sidebar.selectbox(
