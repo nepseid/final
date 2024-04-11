@@ -43,7 +43,6 @@ if dps_filter != 'All':
     else:
         df_filtered = df_filtered[df_filtered['DPS Filter'] == dps_filter]
 
-
 # Get unique sector values excluding "Delist"
 sector_options = df_filtered['Sector'].unique()
 sector_options = [sector for sector in sector_options if sector != 'Delist']
@@ -51,9 +50,6 @@ sector_options = [sector for sector in sector_options if sector != 'Delist']
 # Sector filter with dropdown list and checkboxes
 sector_filter = st.sidebar.multiselect(
     'Select Sector:', sector_options, default=sector_options)
-
-
-
 
 # Apply sector filter
 if sector_filter:
@@ -78,6 +74,7 @@ eps_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
 dps_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
     x=alt.X('SYMBOL:N', sort=None),
     y='Dps',
+    tooltip=['SYMBOL', 'Dps'],
     text=alt.Text('Dps'),
     color=alt.Color('SYMBOL', legend=None)
 )
@@ -85,6 +82,7 @@ dps_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
 price_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
     x=alt.X('SYMBOL:N', sort=None),
     y='Price',
+    tooltip=['SYMBOL', 'Price'],
     text=alt.Text('Price'),
     color=alt.Color('SYMBOL', legend=None)
 )
@@ -96,6 +94,7 @@ cap_chart = alt.Chart(df_filtered_sorted).mark_bar().encode(
     x=alt.X('SYMBOL:N', sort=None),
     y=alt.Y('PAID-UP_B:Q',
             axis=alt.Axis(title='Paid-Up (in billions G)', format='.2s')),
+    tooltip=['SYMBOL', 'PAID-UP_B'],
     text=alt.Text('PAID-UP_B:Q', format='.2sB'),
     color=alt.Color('SYMBOL', legend=None)
 )
@@ -165,28 +164,59 @@ eps_chart_text = eps_chart.mark_text(
 st.altair_chart(eps_chart + eps_chart_text, use_container_width=True)
 
 st.write(f"PE for {year_filter} Q{quarter_filter}")
-st.altair_chart(pe_chart, use_container_width=True)
+pe_chart_text = pe_chart.mark_text(
+    align='center',
+    baseline='middle',
+    dx=0,
+    dy=-10
+).encode(
+    text=alt.Text('PE:Q', format='.2f'),
+)
+st.altair_chart(pe_chart + pe_chart_text, use_container_width=True)
 
 st.write(f"Public Shares for {year_filter} Q{quarter_filter}")
-st.altair_chart(public_shares_chart, use_container_width=True)
+public_shares_chart_text = public_shares_chart.mark_text(
+    align='center',
+    baseline='middle',
+    dx=0,
+    dy=-10
+).encode(
+    text=alt.Text('Public Shares:Q', format=',.0f'),
+)
+st.altair_chart(public_shares_chart + public_shares_chart_text, use_container_width=True)
 
-st.write(f"PE for {year_filter} Q{quarter_filter}")
-st.altair_chart(pe_chart, use_container_width=True)
-
-st.write(f"BOOK VALUE for {year_filter} Q{quarter_filter}")
-st.altair_chart(book_value_chart, use_container_width=True)
-
-st.write(f"Capital for {year_filter} Q{quarter_filter}")
-st.altair_chart(cap_chart, use_container_width=True)
+st.write(f"Book Value for {year_filter} Q{quarter_filter}")
+book_value_chart_text = book_value_chart.mark_text(
+    align='center',
+    baseline='middle',
+    dx=0,
+    dy=-10
+).encode(
+    text=alt.Text('BOOK VALUE:Q', format=',.0f'),
+)
+st.altair_chart(book_value_chart + book_value_chart_text, use_container_width=True)
 
 st.write(f"ROE for {year_filter} Q{quarter_filter}")
-st.altair_chart(roe_chart, use_container_width=True)
+roe_chart_text = roe_chart.mark_text(
+    align='center',
+    baseline='middle',
+    dx=0,
+    dy=-10
+).encode(
+    text=alt.Text('ROE:Q', format='.2f'),
+)
+st.altair_chart(roe_chart + roe_chart_text, use_container_width=True)
 
 st.write(f"NPL for {year_filter} Q{quarter_filter}")
-st.altair_chart(npl_chart, use_container_width=True)
-
-st.write(f"Capital for {year_filter} Q{quarter_filter}")
-st.altair_chart(cap_chart, use_container_width=True)
+npl_chart_text = npl_chart.mark_text(
+    align='center',
+    baseline='middle',
+    dx=0,
+    dy=-10
+).encode(
+    text=alt.Text('NPL:Q', format=',.0f'),
+)
+st.altair_chart(npl_chart + npl_chart_text, use_container_width=True)
 
 st.write(f"DPS for {year_filter} Q{quarter_filter}")
 dps_chart_text = dps_chart.mark_text(
