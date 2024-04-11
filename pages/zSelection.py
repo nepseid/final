@@ -15,9 +15,9 @@ df['DPS Filter'] = pd.cut(df['Dps'], bins=[-float('inf'), 0, 5, 10, 20, 50, floa
 
 # Sidebar filters
 year_filter = st.sidebar.selectbox(
-    'Select Year:', options=df['Year'].unique(), index=6)
+    'Select Year:', options=df['Year'].unique(), index=7)
 quarter_filter = st.sidebar.selectbox(
-    'Select Quarter:', options=df['Quarter'].unique(), index=3)
+    'Select Quarter:', options=df['Quarter'].unique(), index=1)
 
 price_filter = st.sidebar.selectbox('Select Price Filter:', options=[
                                     'All', '0-100', '100-200', '200-250', '250-300', '300-400', '400-500', '500-700', '700-900', '900-1200', '1200-1500', '1500-2500', '2500-40000'], index=3)
