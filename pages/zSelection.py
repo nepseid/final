@@ -28,21 +28,34 @@ df_filtered = df[(df['Year'] == year_filter) &
 if eps_filter != 'All':
     if eps_filter == 'Positive':
         df_filtered = df_filtered[df_filtered['EPS'] > 0]
-    elif eps_filter == '20-200':
-        df_filtered = df_filtered[(df_filtered['EPS'] >= 20) & (
-            df_filtered['EPS'] <= 200)]
-    else:
-        df_filtered = df_filtered[df_filtered['EPS'] == float(eps_filter)]
-
+    elif eps_filter == 'Negative':
+        df_filtered = df_filtered[df_filtered['EPS'] < 0]
+    elif eps_filter == 'More than 0':
+        df_filtered = df_filtered[df_filtered['EPS'] > 0]
+    elif eps_filter == 'More than 5':
+        df_filtered = df_filtered[df_filtered['EPS'] > 5]
+    elif eps_filter == 'More than 10':
+        df_filtered = df_filtered[df_filtered['EPS'] > 10]
+    elif eps_filter == 'More than 20':
+        df_filtered = df_filtered[df_filtered['EPS'] > 20]
+    elif eps_filter == 'More than 50':
+        df_filtered = df_filtered[df_filtered['EPS'] > 50]
 
 if dps_filter != 'All':
     if dps_filter == 'Positive':
         df_filtered = df_filtered[df_filtered['Dps'] > 0]
-    elif dps_filter == '20-200':
-        df_filtered = df_filtered[(df_filtered['Dps'] >= 20) & (
-            df_filtered['Dps'] <= 200)]
-    else:
-        df_filtered = df_filtered[df_filtered['DPS Filter'] == dps_filter]
+    elif dps_filter == 'Negative':
+        df_filtered = df_filtered[df_filtered['Dps'] < 0]
+    elif dps_filter == 'More than 0':
+        df_filtered = df_filtered[df_filtered['Dps'] > 0]
+    elif dps_filter == 'More than 5':
+        df_filtered = df_filtered[df_filtered['Dps'] > 5]
+    elif dps_filter == 'More than 10':
+        df_filtered = df_filtered[df_filtered['Dps'] > 10]
+    elif dps_filter == 'More than 20':
+        df_filtered = df_filtered[df_filtered['Dps'] > 20]
+    elif dps_filter == 'More than 50':
+        df_filtered = df_filtered[df_filtered['Dps'] > 50]
 
 # Get unique sector values excluding "Delist"
 sector_options = df_filtered['Sector'].unique()
