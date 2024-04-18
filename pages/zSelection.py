@@ -32,7 +32,8 @@ if eps_filter != 'All':
         df_filtered = df_filtered[(df_filtered['EPS'] >= 20) & (
             df_filtered['EPS'] <= 200)]
     else:
-        df_filtered = df_filtered[df_filtered['EPS Filter'] == eps_filter]
+        df_filtered = df_filtered[df_filtered['EPS'] == float(eps_filter)]
+
 
 if dps_filter != 'All':
     if dps_filter == 'Positive':
