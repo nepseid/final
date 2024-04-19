@@ -113,7 +113,7 @@ fig_npl.update_traces(hovertemplate="<b>NPL:</b> %{y}")
 # ROE 
 
 roe = df_selection.groupby(by=["SYMBOL"]).sum()[["ROE"]].sort_values(by="ROE")
-fig_pe = create_bar_chart(roe, roe.index, "ROE", "Return on Equity")
+fig_pe = create_bar_chart(roe, roe.index, "ROE", "ROE")
 fig_roe.update_traces(hovertemplate="<b>ROE:</b> %{y}")
 
 # EPS and DPS
