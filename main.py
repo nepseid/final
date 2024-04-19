@@ -110,6 +110,11 @@ npl = df_selection.groupby(by=["SYMBOL"]).sum()[["NPL"]].sort_values(by="NPL")
 fig_npl = create_bar_chart(npl, npl.index, "NPL", "NPL")
 fig_npl.update_traces(hovertemplate="<b>NPL:</b> %{y}")
 
+# ROE 
+
+roe = df_selection.groupby(by=["SYMBOL"]).sum()[["ROE"]].sort_values(by="ROE")
+fig_pe = create_bar_chart(roe, roe.index, "ROE", "Return on Equity")
+fig_roe.update_traces(hovertemplate="<b>ROE:</b> %{y}")
 
 # EPS and DPS
 
@@ -162,6 +167,7 @@ st.plotly_chart(fig_eps_dps, use_container_width=True)
 st.plotly_chart(fig_bookvalue, use_container_width=True)
 st.plotly_chart(fig_pe, use_container_width=True)
 st.plotly_chart(fig_netprofit, use_container_width=True)
+st.plotly_chart(fig_roe, use_container_width=True)
 st.plotly_chart(fig_npl, use_container_width=True)
 st.plotly_chart(fig_eps, use_container_width=True)
 st.plotly_chart(fig_dps, use_container_width=True)
