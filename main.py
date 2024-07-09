@@ -170,4 +170,4 @@ st.plotly_chart(fig_netprofit, use_container_width=True)
 st.plotly_chart(fig_roe, use_container_width=True)
 st.plotly_chart(fig_npl, use_container_width=True)
 st.plotly_chart(fig_eps, use_container_width=True)
-st.plotly_chart(fig_dps, use_container_width=True
+st.plotly_chart(fig_dps, use_container_width=True)
