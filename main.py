@@ -23,6 +23,9 @@ SYMBOL = st.sidebar.multiselect("Scips:", options=df_sector["SYMBOL"].unique(
 df_selection = df.query(
     "Sector==@Sector & Year==@Year & Quarter==@Quarter & SYMBOL==@SYMBOL")
 
+# Debug prints
+st.write("Columns in df_selection:", df_selection.columns)
+st.write("df_selection after filtering:", df_selection)
 
 def format_value(value):
     if value >= 1e9:
