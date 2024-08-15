@@ -9,7 +9,7 @@ df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 year_filter = st.sidebar.selectbox(
     'Select Year:', options=df['Year'].unique(), index=7)
 quarter_filter = st.sidebar.selectbox(
-    'Select Quarter:', options=df['Quarter'].unique(), index=0)
+    'Select Quarter:', options=df['Quarter'].unique(), index=3)
 
 from_price = st.sidebar.number_input("From Price (Rs)", value=100)
 to_price = st.sidebar.number_input("To Price (Rs)", value=400)
