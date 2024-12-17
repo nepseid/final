@@ -15,9 +15,9 @@ Sector = st.sidebar.selectbox(
     "Sector:", options=sorted(df["Sector"].unique()), index=0)
 df_sector = df.query("Sector == @Sector")
 
-Year = st.sidebar.selectbox("Year", sorted(df["Year"].unique()), index=7)
+Year = st.sidebar.selectbox("Year", sorted(df["Year"].unique()), index=8)
 Quarter = st.sidebar.selectbox(
-    "Quarter", sorted(df["Quarter"].unique()), index=3)
+    "Quarter", sorted(df["Quarter"].unique()), index=0)
 SYMBOL = st.sidebar.multiselect("Scips:", options=df_sector["SYMBOL"].unique(
 ), default=df_sector["SYMBOL"].unique())
 df_selection = df.query(
