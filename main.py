@@ -9,19 +9,37 @@ st.title("Fundamental Analysis")
 
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
-st.sidebar.header("Parameters")
+# Header for filters
+st.header("Parameters")
 
-Sector = st.sidebar.selectbox(
-    "Sector:", options=sorted(df["Sector"].unique()), index=0)
-df_sector = df.query("Sector == @Sector")
+# Create a row with 3 columns for the filters
+col1, col2, col3 = st.columns(3)
 
-Year = st.sidebar.selectbox("Year", sorted(df["Year"].unique()), index=8)
-Quarter = st.sidebar.selectbox(
-    "Quarter", sorted(df["Quarter"].unique()), index=0)
-SYMBOL = st.sidebar.multiselect("Scips:", options=df_sector["SYMBOL"].unique(
-), default=df_sector["SYMBOL"].unique())
-df_selection = df.query(
-    "Sector==@Sector & Year==@Year & Quarter==@Quarter & SYMBOL==@SYMBOL")
+with col1:
+    Sector = st.selectbox("Sector:", options=sorted(
+        df["Sector"].unique()), index=0)
+    Quarter = st.selectbox("Quarter", sorted(df["Quarter"].unique()), index=0)
+
+with col2:
+    Year = st.selectbox("Year", sorted(df["Year"].unique()), index=8)
+
+with col3:
+    symbols = df.query("Sector == @Sector")["SYMBOL"].unique()
+    symbols_with_all = ["All"] + list(symbols)  # Add "All" option
+    selected_symbols = st.selectbox(
+        "Scips:", options=symbols_with_all, index=0
+    )
+
+# Apply the selected filters to the dataframe
+if selected_symbols == "All":
+    df_selection = df.query(
+        "Sector == @Sector & Year == @Year & Quarter == @Quarter")
+else:
+    df_selection = df.query(
+        "Sector == @Sector & Year == @Year & Quarter == @Quarter & SYMBOL == @selected_symbols"
+    )
+
+# Helper function to format values
 
 
 def format_value(value):
@@ -33,6 +51,8 @@ def format_value(value):
         return f"{value/1e3:.2f}K"
     else:
         return f"{value:.2f}"
+
+# Function to create bar charts
 
 
 def create_bar_chart(data, x, y, title):
@@ -59,59 +79,39 @@ def create_bar_chart(data, x, y, title):
     return fig
 
 
-# Last Traded Price
+# Create charts
 price = df_selection.groupby(by=["SYMBOL"]).sum()[
     ["Price"]].sort_values(by="Price")
 fig_price = create_bar_chart(price, price.index, "Price", "Last Traded Price")
-fig_price.update_traces(hovertemplate="<b>Price:</b> %{y}")
 
-# Capital Framework
 paid_up = df_selection.groupby(by=["SYMBOL"]).sum()[
     ["PAID-UP"]].sort_values(by="PAID-UP")
-paid_up["PAID-UP"] *= 1000  # Multiply the "PAID-UP" values by 1000
+paid_up["PAID-UP"] *= 1000
 fig_paid_up = create_bar_chart(
     paid_up, paid_up.index, "PAID-UP", "Capital Framework")
-fig_paid_up.update_traces(hovertemplate="<b>Capital:</b> %{y}")
 
-# EPS
 eps = df_selection.groupby(by=["SYMBOL"]).sum()[["EPS"]].sort_values(by="EPS")
 fig_eps = create_bar_chart(eps, eps.index, "EPS", "EPS")
-fig_eps.update_traces(hovertemplate="<b>EPS:</b> %{y}")
 
-# Book Value
 bookvalue = df_selection.groupby(by=["SYMBOL"]).sum()[
     ["BOOK VALUE"]].sort_values(by="BOOK VALUE")
 fig_bookvalue = create_bar_chart(
     bookvalue, bookvalue.index, "BOOK VALUE", "Book Value")
-fig_bookvalue.update_traces(hovertemplate="<b>Book Value:</b> %{y}")
 
-# DPS
 dps = df_selection.groupby(by=["SYMBOL"]).sum()[["Dps"]].sort_values(by="Dps")
 fig_dps = create_bar_chart(dps, dps.index, "Dps", "DPS")
-fig_dps.update_traces(hovertemplate="<b>DPS:</b> %{y}")
 
-# Net Profit
 netprofit = df_selection.groupby(by=["SYMBOL"]).sum()[
     ["NET PROFIT"]].sort_values(by="NET PROFIT")
-netprofit["NET PROFIT"] *= 1000  # Multiply the "Net Profit" values by 1000
+netprofit["NET PROFIT"] *= 1000
 fig_netprofit = create_bar_chart(
     netprofit, netprofit.index, "NET PROFIT", "Net Profit")
-fig_netprofit.update_traces(hovertemplate="<b>Net Profit:</b> %{y}")
-
-# PE Ratio
 
 pe = df_selection.groupby(by=["SYMBOL"]).sum()[["PE"]].sort_values(by="PE")
 fig_pe = create_bar_chart(pe, pe.index, "PE", "PE Ratio")
-fig_pe.update_traces(hovertemplate="<b>PE:</b> %{y}")
-
-# NPL
 
 npl = df_selection.groupby(by=["SYMBOL"]).sum()[["NPL"]].sort_values(by="NPL")
 fig_npl = create_bar_chart(npl, npl.index, "NPL", "NPL")
-fig_npl.update_traces(hovertemplate="<b>NPL:</b> %{y}")
-
-
-# EPS and DPS
 
 eps_dps = df_selection.groupby(by=["SYMBOL"]).sum()[
     ["EPS", "Dps"]].sort_values(by="EPS")
@@ -140,28 +140,20 @@ fig_eps_dps.update_layout(
     xaxis_title="Symbol",
     yaxis_title="Value",
     legend=dict(x=0.7, y=1),
-
-    # Disable zooming
     dragmode=False,
     xaxis=dict(fixedrange=True),
     yaxis=dict(fixedrange=True)
 )
-# Public Shares
 
 ps = df_selection.groupby(by=["SYMBOL"]).sum(
 )[["Public Shares"]].sort_values(by="Public Shares")
 fig_ps = create_bar_chart(ps, ps.index, "Public Shares", "Public Shares")
-fig_ps.update_traces(hovertemplate="<b>Public Shares:</b> %{y}")
 
-# Public Shares
-
-reserve = df_selection.groupby(by=["SYMBOL"]).sum(
-)[["RESERVE"]].sort_values(by="RESERVE")
+reserve = df_selection.groupby(by=["SYMBOL"]).sum()[
+    ["RESERVE"]].sort_values(by="RESERVE")
 fig_reserve = create_bar_chart(reserve, reserve.index, "RESERVE", "RESERVE")
-fig_reserve.update_traces(hovertemplate="<b>RESERVE:</b> %{y}")
 
 # Display charts
-
 st.plotly_chart(fig_price, use_container_width=True)
 st.plotly_chart(fig_ps, use_container_width=True)
 st.plotly_chart(fig_paid_up, use_container_width=True)
