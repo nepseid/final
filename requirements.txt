@@ -26,14 +26,13 @@ jsonschema==4.17.3
 markdown-it-py==2.2.0
 MarkupSafe==2.1.2
 mdurl==0.1.2
-numpy>=1.26.0
+numpy==1.26.2
 openpyxl==3.1.2
 packaging==23.1
 pandas==1.5.3
 patsy==0.5.3
 Pillow==9.5.0
 plotly==5.14.1
-plotly-express==0.4.1
 protobuf==3.20.3
 pyarrow==11.0.0
 pycodestyle==2.10.0
@@ -43,7 +42,6 @@ Pympler==1.0.1
 pyrsistent==0.19.3
 python-dateutil==2.8.2
 pytz==2023.3
-pytz-deprecation-shim==0.1.0.post0
 requests==2.28.2
 rich==13.3.4
 scipy==1.10.1
@@ -57,7 +55,6 @@ toml==0.10.2
 toolz==0.12.0
 tornado==6.3
 typing_extensions==4.5.0
-tzdata==2023.3
 tzlocal==4.3
 urllib3==1.26.15
 validators==0.20.0
