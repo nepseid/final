@@ -18,7 +18,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     Sector = st.selectbox("Sector:", options=sorted(
         df["Sector"].unique()), index=0)
-    Quarter = st.selectbox("Quarter", sorted(df["Quarter"].unique()), index=0)
+    Quarter = st.selectbox("Quarter", sorted(df["Quarter"].unique()), index=2)
 
 with col2:
     Year = st.selectbox("Year", sorted(df["Year"].unique()), index=8)
@@ -27,7 +27,7 @@ with col3:
     symbols = df.query("Sector == @Sector")["SYMBOL"].unique()
     symbols_with_all = ["All"] + list(symbols)  # Add "All" option
     selected_symbols = st.selectbox(
-        "Scips:", options=symbols_with_all, index=2
+        "Scips:", options=symbols_with_all, index=0
     )
 
 # Apply the selected filters to the dataframe
