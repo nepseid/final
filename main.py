@@ -27,7 +27,7 @@ with col3:
     symbols = df.query("Sector == @Sector")["SYMBOL"].unique()
     symbols_with_all = ["All"] + list(symbols)  # Add "All" option
     selected_symbols = st.selectbox(
-        "Scips:", options=symbols_with_all, index=0
+        "Scips:", options=symbols_with_all, index=2
     )
 
 # Apply the selected filters to the dataframe
