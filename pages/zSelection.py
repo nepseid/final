@@ -99,27 +99,28 @@ if st.button("Apply"):
 
     # Chart builder with vertical inside-bar labels
     def create_chart(data, x, y, tooltip, text_format, title):
-        base = alt.Chart(data).encode(
-            x=alt.X(f'{x}:N', sort=None),
-            y=alt.Y(f'{y}:Q'),
-            tooltip=tooltip,
-            color=alt.Color(f'{x}:N', legend=None)
-        )
+    base = alt.Chart(data).encode(
+        x=alt.X(f'{x}:N', sort=None),
+        y=alt.Y(f'{y}:Q'),
+        tooltip=tooltip,
+        color=alt.Color(f'{x}:N', legend=None)
+    )
 
-        bars = base.mark_bar()
+    bars = base.mark_bar()
 
-        text = base.mark_text(
-            align='center',
-            baseline='middle',
-            angle=270,        # vertical text
-            dy=5,             # adjust vertical position inside bar
-            fontSize=11,
-            color='white'     # white text for visibility inside bars
-        ).encode(
-            text=alt.Text(f'{y}:Q', format=text_format)
-        )
+    text = base.mark_text(
+        align='center',
+        baseline='bottom',  # place text just above the bar top
+        angle=270,          # vertical text
+        dy=-5,              # nudge text slightly above the bar
+        fontSize=11,
+        color='white'       # white text for visibility
+    ).encode(
+        text=alt.Text(f'{y}:Q', format=text_format)
+    )
 
-        return (bars + text).properties(title=title)
+    return (bars + text).properties(title=title)
+
 
     # Create charts with formatting for labels
     price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], ',.0f', 'Current Price')
