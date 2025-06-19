@@ -110,7 +110,7 @@ if st.button("Apply"):
 
         # Calculate text y position 5 units above bar top
         text = alt.Chart(data).transform_calculate(
-            y_text=f'datum["{y}"] + 5'
+            y_text=f'datum["{y}"] + 10'
         ).mark_text(
             align='center',
             baseline='bottom',
