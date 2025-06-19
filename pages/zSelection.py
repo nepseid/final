@@ -97,7 +97,7 @@ if st.button("Apply"):
     # Sort data
     df_filtered_sorted = df_filtered.sort_values('Price')
 
-    # Chart builder with bold white vertical labels above bars
+    # Chart builder with vertical white labels just above bars
     def create_chart(data, x, y, tooltip, text_format, title):
         base = alt.Chart(data).encode(
             x=alt.X(f'{x}:N', sort=None),
@@ -112,15 +112,14 @@ if st.button("Apply"):
             align='center',
             baseline='bottom',
             angle=270,
-            dy=0,  # no offset here, handled by transform
+            dy=0,  # no vertical pixel offset, handled by y offset below
             fontSize=16,
             fontWeight='bold',
             color='white'
         ).encode(
             text=alt.Text(f'{y}:Q', format=text_format),
-            y=alt.Y(f"{y} + 5")  # 5 units above the bar's value
+            y=alt.Y(f"{y} + 5")  # place text 5 units above the bar top; adjust as needed
         )
-
 
         return (bars + text).properties(title=title)
 
