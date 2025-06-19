@@ -97,19 +97,32 @@ if st.button("Apply"):
     # Sort data
     df_filtered_sorted = df_filtered.sort_values('Price')
 
-    # Chart builder
+    # Chart builder with vertical inside-bar labels
     def create_chart(data, x, y, tooltip, text_format, title):
-        chart = alt.Chart(data).mark_bar().encode(
+        base = alt.Chart(data).encode(
             x=alt.X(f'{x}:N', sort=None),
-            y=y,
+            y=alt.Y(f'{y}:Q'),
             tooltip=tooltip,
-            text=alt.Text(f'{y}:Q', format=text_format),
             color=alt.Color(f'{x}:N', legend=None)
-        ).properties(title=title)
-        return chart
+        )
 
-    # Create charts
-    price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], '.2f', 'Current Price')
+        bars = base.mark_bar()
+
+        text = base.mark_text(
+            align='center',
+            baseline='middle',
+            angle=270,        # vertical text
+            dy=5,             # adjust vertical position inside bar
+            fontSize=11,
+            color='white'     # white text for visibility inside bars
+        ).encode(
+            text=alt.Text(f'{y}:Q', format=text_format)
+        )
+
+        return (bars + text).properties(title=title)
+
+    # Create charts with formatting for labels
+    price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], ',.0f', 'Current Price')
     eps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'EPS', ['SYMBOL', 'EPS'], '.2f', f'EPS for {year_filter} Q{quarter_filter}')
     pe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'PE', ['SYMBOL', 'PE'], '.2f', f'PE for {year_filter} Q{quarter_filter}')
     public_shares_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Public Shares', ['SYMBOL', 'Public Shares'], ',.0f', 'Public Shares')
