@@ -43,83 +43,85 @@ with col5:
         'All', 'Positive', 'Negative', 'More than 0', 'More than 5',
         'More than 10', 'More than 20', 'More than 50'])
 
-# Apply basic filters
-df_filtered = df[
-    (df['Year'] == year_filter) &
-    (df['Quarter'] == quarter_filter)
-]
+# Apply button
+if st.button("Apply"):
+    # Start filtering
+    df_filtered = df[
+        (df['Year'] == year_filter) &
+        (df['Quarter'] == quarter_filter)
+    ]
 
-# Apply price filters
-from_price_val = parse_filter(from_price)
-to_price_val = parse_filter(to_price)
+    # Apply price filters
+    from_price_val = parse_filter(from_price)
+    to_price_val = parse_filter(to_price)
 
-if from_price_val is not None:
-    df_filtered = df_filtered[df_filtered['Price'] >= from_price_val]
-if to_price_val is not None:
-    df_filtered = df_filtered[df_filtered['Price'] <= to_price_val]
+    if from_price_val is not None:
+        df_filtered = df_filtered[df_filtered['Price'] >= from_price_val]
+    if to_price_val is not None:
+        df_filtered = df_filtered[df_filtered['Price'] <= to_price_val]
 
-# Apply book value filters
-from_book_val = parse_filter(from_book)
-to_book_val = parse_filter(to_book)
+    # Apply book value filters
+    from_book_val = parse_filter(from_book)
+    to_book_val = parse_filter(to_book)
 
-if from_book_val is not None:
-    df_filtered = df_filtered[df_filtered['BOOK VALUE'] >= from_book_val]
-if to_book_val is not None:
-    df_filtered = df_filtered[df_filtered['BOOK VALUE'] <= to_book_val]
+    if from_book_val is not None:
+        df_filtered = df_filtered[df_filtered['BOOK VALUE'] >= from_book_val]
+    if to_book_val is not None:
+        df_filtered = df_filtered[df_filtered['BOOK VALUE'] <= to_book_val]
 
-# EPS & DPS filter logic
-filter_values = {
-    'Positive': lambda x: x > 0,
-    'Negative': lambda x: x < 0,
-    'More than 0': lambda x: x > 0,
-    'More than 5': lambda x: x > 5,
-    'More than 10': lambda x: x > 10,
-    'More than 20': lambda x: x > 20,
-    'More than 50': lambda x: x > 50
-}
+    # EPS & DPS filter logic
+    filter_values = {
+        'Positive': lambda x: x > 0,
+        'Negative': lambda x: x < 0,
+        'More than 0': lambda x: x > 0,
+        'More than 5': lambda x: x > 5,
+        'More than 10': lambda x: x > 10,
+        'More than 20': lambda x: x > 20,
+        'More than 50': lambda x: x > 50
+    }
 
-if eps_filter != 'All':
-    df_filtered = df_filtered[df_filtered['EPS'].apply(filter_values[eps_filter])]
-if dps_filter != 'All':
-    df_filtered = df_filtered[df_filtered['Dps'].apply(filter_values[dps_filter])]
+    if eps_filter != 'All':
+        df_filtered = df_filtered[df_filtered['EPS'].apply(filter_values[eps_filter])]
+    if dps_filter != 'All':
+        df_filtered = df_filtered[df_filtered['Dps'].apply(filter_values[dps_filter])]
 
-# Sector filter (excluding 'Delist')
-sector_options = [sector for sector in df_filtered['Sector'].unique() if sector != 'Delist']
-sector_filter = st.multiselect('Select Sector:', sector_options, default=sector_options)
+    # Sector filtering (delist excluded)
+    sector_options = [sector for sector in df_filtered['Sector'].unique() if sector != 'Delist']
+    sector_filter = st.multiselect('Select Sector:', sector_options, default=sector_options)
 
-if sector_filter:
-    df_filtered = df_filtered[df_filtered['Sector'].isin(sector_filter)]
+    if sector_filter:
+        df_filtered = df_filtered[df_filtered['Sector'].isin(sector_filter)]
 
-# Sort data by Price
-df_filtered_sorted = df_filtered.sort_values('Price')
+    # Sort by price
+    df_filtered_sorted = df_filtered.sort_values('Price')
 
-# Chart generator
-def create_chart(data, x, y, tooltip, text_format, title):
-    chart = alt.Chart(data).mark_bar().encode(
-        x=alt.X(f'{x}:N', sort=None),
-        y=y,
-        tooltip=tooltip,
-        text=alt.Text(f'{y}:Q', format=text_format),
-        color=alt.Color(f'{x}:N', legend=None)
-    ).properties(title=title)
-    return chart
+    # Chart builder function
+    def create_chart(data, x, y, tooltip, text_format, title):
+        chart = alt.Chart(data).mark_bar().encode(
+            x=alt.X(f'{x}:N', sort=None),
+            y=y,
+            tooltip=tooltip,
+            text=alt.Text(f'{y}:Q', format=text_format),
+            color=alt.Color(f'{x}:N', legend=None)
+        ).properties(title=title)
+        return chart
 
-# Create charts
-price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], '.2f', 'Current Price')
-eps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'EPS', ['SYMBOL', 'EPS'], '.2f', f'EPS for {year_filter} Q{quarter_filter}')
-pe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'PE', ['SYMBOL', 'PE'], '.2f', f'PE for {year_filter} Q{quarter_filter}')
-public_shares_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Public Shares', ['SYMBOL', 'Public Shares'], ',.0f', 'Public Shares')
-book_value_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'BOOK VALUE', ['SYMBOL', 'BOOK VALUE'], ',.0f', 'Book Value')
-roe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'ROE', ['SYMBOL', 'ROE'], '.2f', 'ROE')
-npl_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'NPL', ['SYMBOL', 'NPL'], ',.0f', 'NPL')
-dps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Dps', ['SYMBOL', 'Dps'], '.2f', f'DPS for {year_filter} Q{quarter_filter}')
+    # Create charts
+    price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], '.2f', 'Current Price')
+    eps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'EPS', ['SYMBOL', 'EPS'], '.2f', f'EPS for {year_filter} Q{quarter_filter}')
+    pe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'PE', ['SYMBOL', 'PE'], '.2f', f'PE for {year_filter} Q{quarter_filter}')
+    public_shares_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Public Shares', ['SYMBOL', 'Public Shares'], ',.0f', 'Public Shares')
+    book_value_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'BOOK VALUE', ['SYMBOL', 'BOOK VALUE'], ',.0f', 'Book Value')
+    roe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'ROE', ['SYMBOL', 'ROE'], '.2f', 'ROE')
+    npl_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'NPL', ['SYMBOL', 'NPL'], ',.0f', 'NPL')
+    dps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Dps', ['SYMBOL', 'Dps'], '.2f', f'DPS for {year_filter} Q{quarter_filter}')
 
-# Display charts
-st.altair_chart(price_chart, use_container_width=True)
-st.altair_chart(eps_chart, use_container_width=True)
-st.altair_chart(pe_chart, use_container_width=True)
-st.altair_chart(public_shares_chart, use_container_width=True)
-st.altair_chart(book_value_chart, use_container_width=True)
-st.altair_chart(roe_chart, use_container_width=True)
-st.altair_chart(npl_chart, use_container_width=True)
-st.altair_chart(dps_chart, use_container_width=True)
+    # Display charts
+    st.altair_chart(price_chart, use_container_width=True)
+    st.altair_chart(eps_chart, use_container_width=True)
+    st.altair_chart(pe_chart, use_container_width=True)
+    st.altair_chart(public_shares_chart, use_container_width=True)
+    st.altair_chart(book_value_chart, use_container_width=True)
+    st.altair_chart(roe_chart, use_container_width=True)
+    st.altair_chart(npl_chart, use_container_width=True)
+    st.altair_chart(dps_chart, use_container_width=True)
