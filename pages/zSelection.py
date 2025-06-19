@@ -99,29 +99,34 @@ if st.button("Apply"):
 
     # Chart builder with vertical white labels just above bars
     def create_chart(data, x, y, tooltip, text_format, title):
-        base = alt.Chart(data).encode(
-            x=alt.X(f'{x}:N', sort=None),
-            y=alt.Y(f'{y}:Q'),
-            tooltip=tooltip,
-            color=alt.Color(f'{x}:N', legend=None)
-        )
+    base = alt.Chart(data).encode(
+        x=alt.X(f'{x}:N', sort=None),
+        y=alt.Y(f'{y}:Q'),
+        tooltip=tooltip,
+        color=alt.Color(f'{x}:N', legend=None)
+    )
 
-        bars = base.mark_bar()
+    bars = base.mark_bar()
 
-        text = base.mark_text(
-            align='center',
-            baseline='bottom',
-            angle=270,
-            dy=0,  # no vertical pixel offset, handled by y offset below
-            fontSize=16,
-            fontWeight='bold',
-            color='white'
-        ).encode(
-            text=alt.Text(f'{y}:Q', format=text_format),
-            y=alt.Y(f"{y} + 5")  # place text 5 units above the bar top; adjust as needed
-        )
+    # Create a calculated field for text y-position 5 units above the bar
+    text = alt.Chart(data).transform_calculate(
+        y_text=f'datum["{y}"] + 5'  # Vega expression
+    ).mark_text(
+        align='center',
+        baseline='bottom',
+        angle=270,
+        dy=0,
+        fontSize=16,
+        fontWeight='bold',
+        color='white'
+    ).encode(
+        x=alt.X(f'{x}:N', sort=None),
+        y=alt.Y('y_text:Q'),
+        text=alt.Text(f'{y}:Q', format=text_format)
+    )
 
-        return (bars + text).properties(title=title)
+    return (bars + text).properties(title=title)
+
 
     # Create charts
     price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], ',.0f', 'Current Price')
