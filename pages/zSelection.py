@@ -43,15 +43,19 @@ with col5:
         'All', 'Positive', 'Negative', 'More than 0', 'More than 5',
         'More than 10', 'More than 20', 'More than 50'])
 
+# Sector filter (always shown before apply)
+sector_options = [sector for sector in df['Sector'].unique() if sector != 'Delist']
+sector_filter = st.multiselect('Select Sector:', sector_options, default=sector_options)
+
 # Apply button
 if st.button("Apply"):
-    # Start filtering
+    # Apply base filters
     df_filtered = df[
         (df['Year'] == year_filter) &
         (df['Quarter'] == quarter_filter)
     ]
 
-    # Apply price filters
+    # Price filters
     from_price_val = parse_filter(from_price)
     to_price_val = parse_filter(to_price)
 
@@ -60,7 +64,7 @@ if st.button("Apply"):
     if to_price_val is not None:
         df_filtered = df_filtered[df_filtered['Price'] <= to_price_val]
 
-    # Apply book value filters
+    # Book value filters
     from_book_val = parse_filter(from_book)
     to_book_val = parse_filter(to_book)
 
@@ -69,7 +73,7 @@ if st.button("Apply"):
     if to_book_val is not None:
         df_filtered = df_filtered[df_filtered['BOOK VALUE'] <= to_book_val]
 
-    # EPS & DPS filter logic
+    # EPS & DPS filters
     filter_values = {
         'Positive': lambda x: x > 0,
         'Negative': lambda x: x < 0,
@@ -85,17 +89,14 @@ if st.button("Apply"):
     if dps_filter != 'All':
         df_filtered = df_filtered[df_filtered['Dps'].apply(filter_values[dps_filter])]
 
-    # Sector filtering (delist excluded)
-    sector_options = [sector for sector in df_filtered['Sector'].unique() if sector != 'Delist']
-    sector_filter = st.multiselect('Select Sector:', sector_options, default=sector_options)
-
+    # Sector filter
     if sector_filter:
         df_filtered = df_filtered[df_filtered['Sector'].isin(sector_filter)]
 
-    # Sort by price
+    # Sort data
     df_filtered_sorted = df_filtered.sort_values('Price')
 
-    # Chart builder function
+    # Chart builder
     def create_chart(data, x, y, tooltip, text_format, title):
         chart = alt.Chart(data).mark_bar().encode(
             x=alt.X(f'{x}:N', sort=None),
