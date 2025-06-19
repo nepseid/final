@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import altair as alt
+st.set_page_config(layout="wide")
 
 # Load data from Excel file
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
