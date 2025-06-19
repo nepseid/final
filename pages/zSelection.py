@@ -97,7 +97,7 @@ if st.button("Apply"):
     # Sort data
     df_filtered_sorted = df_filtered.sort_values('Price')
 
-    # Chart builder with vertical white labels just above bars
+    # Chart builder with bold white vertical labels above bars
     def create_chart(data, x, y, tooltip, text_format, title):
         base = alt.Chart(data).encode(
             x=alt.X(f'{x}:N', sort=None),
@@ -110,18 +110,19 @@ if st.button("Apply"):
 
         text = base.mark_text(
             align='center',
-            baseline='bottom',  # text placed just above the bar
+            baseline='bottom',  # place text just above bar
             angle=270,          # vertical text
-            dy=-5,              # nudge text slightly above bar
-            fontSize=11,
-            color='white'       # white text for contrast
+            dy=-5,              # nudge text above bar top
+            fontSize=16,
+            fontWeight='bold',
+            color='white'
         ).encode(
             text=alt.Text(f'{y}:Q', format=text_format)
         )
 
         return (bars + text).properties(title=title)
 
-    # Create charts with formatting
+    # Create charts
     price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], ',.0f', 'Current Price')
     eps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'EPS', ['SYMBOL', 'EPS'], '.2f', f'EPS for {year_filter} Q{quarter_filter}')
     pe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'PE', ['SYMBOL', 'PE'], '.2f', f'PE for {year_filter} Q{quarter_filter}')
