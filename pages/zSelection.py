@@ -110,15 +110,17 @@ if st.button("Apply"):
 
         text = base.mark_text(
             align='center',
-            baseline='top',  # place text just above bar
-            angle=270,          # vertical text
-            dy=1,             # nudge text above bar top
-            fontSize=14,
+            baseline='bottom',
+            angle=270,
+            dy=0,  # no offset here, handled by transform
+            fontSize=16,
             fontWeight='bold',
             color='white'
         ).encode(
-            text=alt.Text(f'{y}:Q', format=text_format)
+            text=alt.Text(f'{y}:Q', format=text_format),
+            y=alt.Y(f"{y} + 5")  # 5 units above the bar's value
         )
+
 
         return (bars + text).properties(title=title)
 
