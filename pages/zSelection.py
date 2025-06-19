@@ -111,8 +111,8 @@ if st.button("Apply"):
         text = base.mark_text(
             align='center',
             baseline='bottom',  # place text just above bar
-            angle=270,          # vertical text
-            dy=-5,              # nudge text above bar top
+            angle=220,          # vertical text
+            dy=-12,              # nudge text above bar top
             fontSize=16,
             fontWeight='bold',
             color='white'
