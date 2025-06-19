@@ -112,7 +112,7 @@ if st.button("Apply"):
             align='center',
             baseline='bottom',  # place text just above bar
             angle=220,          # vertical text
-            dy=-12,              # nudge text above bar top
+            dy=3,              # nudge text above bar top
             fontSize=16,
             fontWeight='bold',
             color='white'
