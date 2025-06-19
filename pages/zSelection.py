@@ -97,32 +97,31 @@ if st.button("Apply"):
     # Sort data
     df_filtered_sorted = df_filtered.sort_values('Price')
 
-    # Chart builder with vertical inside-bar labels
+    # Chart builder with vertical white labels just above bars
     def create_chart(data, x, y, tooltip, text_format, title):
-    base = alt.Chart(data).encode(
-        x=alt.X(f'{x}:N', sort=None),
-        y=alt.Y(f'{y}:Q'),
-        tooltip=tooltip,
-        color=alt.Color(f'{x}:N', legend=None)
-    )
+        base = alt.Chart(data).encode(
+            x=alt.X(f'{x}:N', sort=None),
+            y=alt.Y(f'{y}:Q'),
+            tooltip=tooltip,
+            color=alt.Color(f'{x}:N', legend=None)
+        )
 
-    bars = base.mark_bar()
+        bars = base.mark_bar()
 
-    text = base.mark_text(
-        align='center',
-        baseline='bottom',  # place text just above the bar top
-        angle=270,          # vertical text
-        dy=-5,              # nudge text slightly above the bar
-        fontSize=11,
-        color='white'       # white text for visibility
-    ).encode(
-        text=alt.Text(f'{y}:Q', format=text_format)
-    )
+        text = base.mark_text(
+            align='center',
+            baseline='bottom',  # text placed just above the bar
+            angle=270,          # vertical text
+            dy=-5,              # nudge text slightly above bar
+            fontSize=11,
+            color='white'       # white text for contrast
+        ).encode(
+            text=alt.Text(f'{y}:Q', format=text_format)
+        )
 
-    return (bars + text).properties(title=title)
+        return (bars + text).properties(title=title)
 
-
-    # Create charts with formatting for labels
+    # Create charts with formatting
     price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], ',.0f', 'Current Price')
     eps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'EPS', ['SYMBOL', 'EPS'], '.2f', f'EPS for {year_filter} Q{quarter_filter}')
     pe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'PE', ['SYMBOL', 'PE'], '.2f', f'PE for {year_filter} Q{quarter_filter}')
