@@ -6,6 +6,10 @@ st.set_page_config(layout="wide")
 # Load data from Excel file
 df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
 
+# Filter out unwanted sectors globally
+excluded_sectors = ['zdelist', 'Non List']
+df = df[~df['Sector'].isin(excluded_sectors)]
+
 # Header for filters
 st.header("Filters")
 
@@ -44,8 +48,8 @@ with col5:
         'All', 'Positive', 'Negative', 'More than 0', 'More than 5',
         'More than 10', 'More than 20', 'More than 50'])
 
-# Sector filter (always shown before apply)
-sector_options = [sector for sector in df['Sector'].unique() if sector != 'Delist']
+# Sector filter (excluding unwanted sectors)
+sector_options = [sector for sector in df['Sector'].unique()]
 sector_filter = st.multiselect('Select Sector:', sector_options, default=sector_options)
 
 # Apply button
@@ -97,45 +101,25 @@ if st.button("Apply"):
     # Sort data
     df_filtered_sorted = df_filtered.sort_values('Price')
 
-    # Chart builder with vertical white labels just above bars
-    def create_chart(data, x, y, tooltip, text_format, title):
-        base = alt.Chart(data).encode(
+    # Chart builder without labels
+    def create_chart(data, x, y, tooltip, title):
+        chart = alt.Chart(data).mark_bar().encode(
             x=alt.X(f'{x}:N', sort=None),
             y=alt.Y(f'{y}:Q'),
             tooltip=tooltip,
             color=alt.Color(f'{x}:N', legend=None)
-        )
-
-        bars = base.mark_bar()
-
-        # Calculate text y position 5 units above bar top
-        text = alt.Chart(data).transform_calculate(
-            y_text=f'datum["{y}"] + 10'
-        ).mark_text(
-            align='center',
-            baseline='bottom',
-            angle=270,
-            dy=0,
-            fontSize=16,
-            fontWeight='bold',
-            color='white'
-        ).encode(
-            x=alt.X(f'{x}:N', sort=None),
-            y=alt.Y('y_text:Q'),
-            text=alt.Text(f'{y}:Q', format=text_format)
-        )
-
-        return (bars + text).properties(title=title)
+        ).properties(title=title)
+        return chart
 
     # Create charts
-    price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], ',.0f', 'Current Price')
-    eps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'EPS', ['SYMBOL', 'EPS'], '.2f', f'EPS for {year_filter} Q{quarter_filter}')
-    pe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'PE', ['SYMBOL', 'PE'], '.2f', f'PE for {year_filter} Q{quarter_filter}')
-    public_shares_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Public Shares', ['SYMBOL', 'Public Shares'], ',.0f', 'Public Shares')
-    book_value_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'BOOK VALUE', ['SYMBOL', 'BOOK VALUE'], ',.0f', 'Book Value')
-    roe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'ROE', ['SYMBOL', 'ROE'], '.2f', 'ROE')
-    npl_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'NPL', ['SYMBOL', 'NPL'], ',.0f', 'NPL')
-    dps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Dps', ['SYMBOL', 'Dps'], '.2f', f'DPS for {year_filter} Q{quarter_filter}')
+    price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], 'Current Price')
+    eps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'EPS', ['SYMBOL', 'EPS'], f'EPS for {year_filter} Q{quarter_filter}')
+    pe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'PE', ['SYMBOL', 'PE'], f'PE for {year_filter} Q{quarter_filter}')
+    public_shares_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Public Shares', ['SYMBOL', 'Public Shares'], 'Public Shares')
+    book_value_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'BOOK VALUE', ['SYMBOL', 'BOOK VALUE'], 'Book Value')
+    roe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'ROE', ['SYMBOL', 'ROE'], 'ROE')
+    npl_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'NPL', ['SYMBOL', 'NPL'], 'NPL')
+    dps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Dps', ['SYMBOL', 'Dps'], f'DPS for {year_filter} Q{quarter_filter}')
 
     # Display charts
     st.altair_chart(price_chart, use_container_width=True)
