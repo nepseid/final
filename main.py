@@ -18,7 +18,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     Sector = st.selectbox("Sector:", options=sorted(
         df["Sector"].unique()), index=0)
-    Quarter = st.selectbox("Quarter", sorted(df["Quarter"].unique()), index=2)
+    Quarter = st.selectbox("Quarter", sorted(df["Quarter"].unique()), index=3)
 
 with col2:
     Year = st.selectbox("Year", sorted(df["Year"].unique()), index=8)
