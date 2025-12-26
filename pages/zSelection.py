@@ -27,7 +27,7 @@ latest_year = df["Year"].iloc[-1]
 latest_quarter = df["Quarter"].iloc[-1]
 
 # ================= HEADER =================
-st.header("📊 Fundamental Filters")
+
 
 # ================= HELPERS =================
 def parse_filter(val):
