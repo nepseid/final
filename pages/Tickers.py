@@ -1,314 +1,192 @@
 import pandas as pd
 import plotly.express as px
-import streamlit as st
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import streamlit as st
 import numpy as np
 
+# ================= PAGE CONFIG =================
 st.set_page_config(
     page_title="Scrip Analysis",
-    page_icon="bar_chart:",
+    page_icon="📊",
     layout="wide"
 )
 
-st.title("Scrips")
+st.title("📊 Scrip Analysis")
 
-df1 = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
+# ================= LOAD DATA =================
+df = pd.read_excel("Fundamentals.xlsx", sheet_name="Sheet1")
+df = df.reset_index(drop=True)
 
-Timeframe = df1["Quarter"] + "-" + df1["Year"]
-df1 = df1.assign(Timeframe=Timeframe)
+df["Timeframe"] = df["Quarter"].astype(str) + "-" + df["Year"].astype(str)
 
-# Create two columns for the filters
+# Latest quarter from file order
+latest_quarter = df["Quarter"].iloc[-1]
+
+# ================= FILTERS =================
 col1, col2 = st.columns(2)
 
 with col1:
     symbol = st.selectbox(
         "Select Symbol",
-        sorted(df1["SYMBOL"].unique()),
-        index=1
+        sorted(df["SYMBOL"].unique())
     )
 
 with col2:
+    quarter_list = sorted(df["Quarter"].unique())
     quarter = st.selectbox(
         "Select Quarter",
-        sorted(df1["Quarter"].unique()),
-        index=3
+        quarter_list,
+        index=quarter_list.index(latest_quarter)
     )
 
-# Filter the dataframe based on the inputs
-df_filtered = df1[(df1["SYMBOL"] == symbol) & (df1["Quarter"] == quarter)]
+# ================= FILTER DATA =================
+df_filtered = df[(df["SYMBOL"] == symbol) & (df["Quarter"] == quarter)]
 
-if not df_filtered.empty:
-    Timeframe = df_filtered["Quarter"].astype(
-        str) + "-" + df_filtered["Year"].astype(str)
-    df_filtered = df_filtered.assign(Timeframe=Timeframe)
+if df_filtered.empty:
+    st.warning("No data available for the selected symbol and quarter.")
+    st.stop()
 
-    # Display the Price
-    st.markdown(
-        f"<p style='font-size:24px; font-weight:bold; text-align:center;'>Current Price Rs. {df_filtered['Price'].values[0]:.2f}</p>",
-        unsafe_allow_html=True
-    )
+# ================= CURRENT PRICE =================
+st.markdown(
+    f"""
+    <p style="font-size:24px; font-weight:bold; text-align:center;">
+    Current Price: Rs. {df_filtered["Price"].iloc[0]:.2f}
+    </p>
+    """,
+    unsafe_allow_html=True
+)
 
-    # EPS Bar Chart
-    fig_eps2 = px.bar(
-        df_filtered,
+# ================= BASIC BAR CHARTS =================
+def simple_bar(df_plot, y, title):
+    fig = px.bar(
+        df_plot,
         x="Timeframe",
-        y="EPS",
-        color="SYMBOL",
-        facet_col="SYMBOL",
-        facet_col_spacing=0.005,
-        orientation="v",
-        title=f"<b>EPS for {symbol}, {quarter}</b>",
+        y=y,
+        title=title,
         color_discrete_sequence=["#0083B8"],
         template="plotly_white"
     )
-    fig_eps2.update_layout(
+    fig.update_traces(texttemplate="%{y}", textposition="auto")
+    fig.update_layout(
         showlegend=False,
         dragmode=False,
         xaxis=dict(fixedrange=True),
         yaxis=dict(fixedrange=True)
     )
-    fig_eps2.update_traces(
-        hovertemplate='<br>EPS: %{y}',
-        hoverlabel=dict(namelength=0),
-        texttemplate='%{y:.2s}',
-        textposition='auto'
-    )
+    return fig
 
-    # DPS Bar Chart
-    fig_dps2 = px.bar(
-        df_filtered,
-        x="Timeframe",
-        y="Dps",
-        color="SYMBOL",
-        facet_col="SYMBOL",
-        facet_col_spacing=0.005,
-        orientation="v",
-        title=f"<b>DPS for {symbol}, {quarter}</b>",
-        color_discrete_sequence=["#0083B8"],
-        template="plotly_white"
-    )
-    fig_dps2.update_layout(
-        showlegend=False,
-        dragmode=False,
-        xaxis=dict(fixedrange=True),
-        yaxis=dict(fixedrange=True)
-    )
-    fig_dps2.update_traces(
-        hovertemplate='<br>DPS: %{y}',
-        hoverlabel=dict(namelength=0),
-        texttemplate='%{y:.2s}',
-        textposition='auto'
-    )
+fig_eps = simple_bar(df_filtered, "EPS", f"<b>EPS – {symbol}</b>")
+fig_dps = simple_bar(df_filtered, "Dps", f"<b>DPS – {symbol}</b>")
+fig_roe = simple_bar(df_filtered, "ROE", f"<b>ROE – {symbol}</b>")
+fig_book = simple_bar(df_filtered, "BOOK VALUE", f"<b>Book Value – {symbol}</b>")
 
-    # Capital Bar Chart
-    fig_paidup2 = px.bar(
-        df_filtered,
-        x="Timeframe",
+# ================= PAID-UP =================
+df_paid = df_filtered.copy()
+df_paid["Capital"] = df_paid["PAID-UP"] * 1000
+fig_paid = simple_bar(df_paid, "Capital", f"<b>Paid-Up Capital – {symbol}</b>")
+
+# ================= EPS + CAPITAL COMBO =================
+fig_capeps = make_subplots(specs=[[{"secondary_y": True}]])
+
+fig_capeps.add_trace(
+    go.Bar(
+        x=df_filtered["Timeframe"],
+        y=df_filtered["EPS"],
+        name="EPS",
+        marker_color="#0083B8"
+    ),
+    secondary_y=False
+)
+
+fig_capeps.add_trace(
+    go.Scatter(
+        x=df_filtered["Timeframe"],
         y=df_filtered["PAID-UP"] * 1000,
-        color="SYMBOL",
-        facet_col="SYMBOL",
-        facet_col_spacing=0.005,
-        orientation="v",
-        title=f"<b>Capital for {symbol}, {quarter}</b>",
-        color_discrete_sequence=["#0083B8"],
-        template="plotly_white"
+        name="Capital",
+        line=dict(color="#FBB13C")
+    ),
+    secondary_y=True
+)
+
+fig_capeps.update_layout(
+    title=f"<b>EPS & Capital – {symbol}</b>",
+    dragmode=False,
+    template="plotly_white"
+)
+
+fig_capeps.update_xaxes(fixedrange=True)
+fig_capeps.update_yaxes(title_text="EPS", fixedrange=True, secondary_y=False)
+fig_capeps.update_yaxes(title_text="Capital", fixedrange=True, secondary_y=True)
+
+# ================= LATEST YEAR =================
+latest_year = df["Year"].iloc[-1]
+
+df_year = df[(df["SYMBOL"] == symbol) & (df["Year"] == latest_year)]
+
+# ================= NPL =================
+fig_npl = None
+if not df_year.empty:
+    fig_npl = px.bar(
+        df_year,
+        x="Quarter",
+        y="NPL",
+        title=f"<b>NPL – {symbol} ({latest_year})</b>",
+        template="plotly_white",
+        color_discrete_sequence=["#0083B8"]
     )
-    fig_paidup2.update_layout(
-        showlegend=False,
-        dragmode=False,
-        xaxis=dict(fixedrange=True),
-        yaxis=dict(fixedrange=True)
+    fig_npl.update_traces(texttemplate="%{y}", textposition="auto")
+    fig_npl.update_layout(dragmode=False)
+
+# ================= NET PROFIT =================
+fig_profit = None
+if not df_year.empty:
+    df_year = df_year.copy()
+    df_year["NetProfit"] = df_year["NET PROFIT"] * 1000
+
+    fig_profit = px.bar(
+        df_year,
+        x="Quarter",
+        y="NetProfit",
+        title=f"<b>Net Profit – {symbol} ({latest_year})</b>",
+        template="plotly_white",
+        color_discrete_sequence=["#0083B8"]
     )
-    fig_paidup2.update_traces(
-        hovertemplate='<br>Capital: %{y}',
-        hoverlabel=dict(namelength=0),
-        texttemplate='%{y}',
-        textposition='auto'
+    fig_profit.update_traces(texttemplate="%{y:.2s}", textposition="auto")
+    fig_profit.update_layout(dragmode=False)
+
+# ================= BONUS / CASH =================
+df_bonus = df[df["SYMBOL"] == symbol]
+
+fig_bonus = None
+if not df_bonus.empty:
+    bonus_avg = df_bonus.groupby("Year")[["Bonus", "Cash"]].mean().reset_index()
+
+    fig_bonus = px.bar(
+        bonus_avg,
+        x="Year",
+        y=["Bonus", "Cash"],
+        barmode="stack",
+        title=f"<b>Bonus & Cash Dividend – {symbol}</b>",
+        template="plotly_white",
+        color_discrete_sequence=["#0083B8", "#FBB13C"]
     )
+    fig_bonus.update_layout(dragmode=False)
 
-    # ROE Bar Chart
-    fig_roe = px.bar(
-        df_filtered,
-        x="Timeframe",
-        y="ROE",
-        color="SYMBOL",
-        facet_col="SYMBOL",
-        facet_col_spacing=0.005,
-        orientation="v",
-        title=f"<b>ROE for {symbol}, {quarter}</b>",
-        color_discrete_sequence=["#0083B8"],
-        template="plotly_white"
-    )
-    fig_roe.update_layout(
-        showlegend=False,
-        dragmode=False,
-        xaxis=dict(fixedrange=True),
-        yaxis=dict(fixedrange=True)
-    )
-    fig_roe.update_traces(
-        hovertemplate='<br>ROE: %{y}',
-        hoverlabel=dict(namelength=0),
-        texttemplate='%{y}',
-        textposition='auto'
-    )
+# ================= DISPLAY =================
+st.plotly_chart(fig_eps, width="stretch")
+st.plotly_chart(fig_dps, width="stretch")
+st.plotly_chart(fig_book, width="stretch")
+st.plotly_chart(fig_roe, width="stretch")
+st.plotly_chart(fig_paid, width="stretch")
 
-    # Book Value Bar Chart
-    fig_bookvalue = px.bar(
-        df_filtered,
-        x="Timeframe",
-        y=df_filtered["BOOK VALUE"],
-        color="SYMBOL",
-        facet_col="SYMBOL",
-        facet_col_spacing=0.005,
-        orientation="v",
-        title=f"<b>Book Value {symbol}, {quarter}</b>",
-        color_discrete_sequence=["#0083B8"],
-        template="plotly_white"
-    )
-    fig_bookvalue.update_layout(
-        showlegend=False,
-        dragmode=False,
-        xaxis=dict(fixedrange=True),
-        yaxis=dict(fixedrange=True)
-    )
-    fig_bookvalue.update_traces(
-        hovertemplate='<br>Book Value: %{y}',
-        hoverlabel=dict(namelength=0),
-        texttemplate='%{y}',
-        textposition='auto'
-    )
+if fig_profit:
+    st.plotly_chart(fig_profit, width="stretch")
 
-    # EPS and Capital Combo Chart
-    fig_capeps = make_subplots(specs=[[{"secondary_y": True}]])
-    fig_capeps.add_trace(
-        px.bar(
-            df_filtered,
-            x="Timeframe",
-            y="EPS",
-            color="SYMBOL",
-            facet_col="SYMBOL",
-            facet_col_spacing=0.005,
-            orientation="v",
-            color_discrete_sequence=["#0083B8"],
-            template="plotly_white"
-        ).data[0],
-        secondary_y=False
-    )
-    fig_capeps.add_trace(
-        go.Scatter(
-            x=df_filtered["Timeframe"],
-            y=df_filtered["PAID-UP"] * 1000,
-            mode="lines",
-            name="Capital",
-            line=dict(color="#FBB13C")
-        ),
-        secondary_y=True
-    )
-    fig_capeps.update_xaxes(title_text="Timeframe", fixedrange=True)
-    fig_capeps.update_yaxes(
-        title_text="EPS", secondary_y=False, fixedrange=True)
-    fig_capeps.update_yaxes(title_text="PAID-UP",
-                            secondary_y=True, fixedrange=True)
-    fig_capeps.update_layout(
-        title=f"<b>EPS and Capital for {symbol}, {quarter}</b>",
-        dragmode=False
-    )
+st.plotly_chart(fig_capeps, width="stretch")
 
-    # NPL Bar Chart
-    latest_year = df1["Year"].unique()[-1]
-    df_npl = df1[(df1["SYMBOL"] == symbol) & (df1["Year"] == latest_year)]
+if fig_npl:
+    st.plotly_chart(fig_npl, width="stretch")
 
-    fig_npl = None
-    if not df_npl.empty:
-        fig_npl = px.bar(
-            df_npl,
-            x="Quarter",
-            y="NPL",
-            title=f"<b>NPL for {symbol}, {df_npl['Year'].iloc[-1]}</b>",
-            color_discrete_sequence=["#0083B8"],
-            template="plotly_white"
-        )
-        fig_npl.update_traces(
-            hovertemplate='<br>NPL: %{y}',
-            hoverlabel=dict(namelength=0),
-            texttemplate='%{y}',
-            textposition='auto'
-        )
-        fig_npl.update_xaxes(fixedrange=True)
-        fig_npl.update_yaxes(fixedrange=True)
-        fig_npl.update_layout(dragmode=False)
-
-    # Net Profit Bar Chart
-    df_profit = df1[(df1["SYMBOL"] == symbol) & (df1["Year"] == latest_year)]
-    fig_profit = None
-    if not df_profit.empty:
-        fig_profit = px.bar(
-            df_profit,
-            x="Quarter",
-            y=df_profit["NET PROFIT"] * 1000,
-            title=f"<b>Net Profit for {symbol}, {df_profit['Year'].iloc[-1]}</b>",
-            color_discrete_sequence=["#0083B8"],
-            template="plotly_white"
-        )
-        fig_profit.update_traces(
-            hovertemplate='<br>Net Profit: %{y}',
-            hoverlabel=dict(namelength=0),
-            texttemplate='%{y:.2s}',
-            textposition='auto'
-        )
-        fig_profit.update_xaxes(fixedrange=True)
-        fig_profit.update_yaxes(fixedrange=True)
-        fig_profit.update_layout(dragmode=False)
-
-    # Bonus Dividend Combo Chart
-    df_filtered_combo = df1[df1["SYMBOL"] == symbol]
-    if not df_filtered_combo.empty:
-        avg_cash_bonus = df_filtered_combo.groupby("Year").agg(
-            {"Bonus": "mean", "Cash": "mean"}).reset_index()
-
-        fig_combo = px.bar(
-            avg_cash_bonus,
-            x="Year",
-            y=["Bonus", "Cash"],
-            title=f"<b>Bonus Dividend {symbol}</b>",
-            barmode="stack",
-            color_discrete_sequence=["#0083B8", "#FBB13C"],
-            template="plotly_white"
-        )
-        fig_combo.update_layout(showlegend=False)
-        fig_combo.update_traces(
-            hovertemplate='Year: %{x}<br>Bonus: %{customdata[0]}<br>Cash: %{customdata[1]}',
-            hoverlabel=dict(namelength=0),
-            texttemplate='%{y}',
-            textposition='auto',
-            customdata=np.stack(
-                (avg_cash_bonus["Bonus"], avg_cash_bonus["Cash"]), axis=-1)
-        )
-        fig_combo.update_xaxes(fixedrange=True)
-        fig_combo.update_yaxes(fixedrange=True)
-        fig_combo.update_layout(dragmode=False)
-
-    # Display all charts
-    st.plotly_chart(fig_eps2, use_container_width=True)
-    st.plotly_chart(fig_combo, use_container_width=True)
-    st.plotly_chart(fig_bookvalue, use_container_width=True)
-    st.plotly_chart(fig_roe, use_container_width=True)
-    st.plotly_chart(fig_paidup2, use_container_width=True)
-
-    if fig_profit is not None:
-        st.plotly_chart(fig_profit, use_container_width=True)
-    else:
-        st.write(
-            "No Net Profit data available for the selected symbol and the latest year.")
-
-    st.plotly_chart(fig_capeps, use_container_width=True)
-
-    if fig_npl is not None:
-        st.plotly_chart(fig_npl, use_container_width=True)
-    else:
-        st.write("No NPL data available for the selected symbol and the latest year.")
-
-    st.plotly_chart(fig_dps2, use_container_width=True)
-else:
-    st.write("No data available for the selected symbol and quarter.")
+if fig_bonus:
+    st.plotly_chart(fig_bonus, width="stretch")
