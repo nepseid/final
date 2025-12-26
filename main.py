@@ -1,167 +1,146 @@
 import pandas as pd
 import plotly.express as px
-import streamlit as st
 import plotly.graph_objects as go
+import streamlit as st
 
-st.set_page_config(page_title="Fundamental Analysis",
-                   page_icon="bar_chart:", layout="wide")
-st.title("Fundamental Analysis")
+# ================= PAGE CONFIG =================
+st.set_page_config(
+    page_title="Fundamental Analysis",
+    page_icon="📊",
+    layout="wide"
+)
 
-df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
+st.title("📊 Fundamental Analysis")
 
-# Header for filters
+# ================= LOAD DATA =================
+df = pd.read_excel("Fundamentals.xlsx", sheet_name="Sheet1")
+df = df.reset_index(drop=True)
+
+# Auto-pick latest year & quarter from last row
+latest_year = df["Year"].iloc[-1]
+latest_quarter = df["Quarter"].iloc[-1]
+
+# ================= FILTERS =================
 st.header("Parameters")
 
-# Create a row with 3 columns for the filters
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    Sector = st.selectbox("Sector:", options=sorted(
-        df["Sector"].unique()), index=0)
-    Quarter = st.selectbox("Quarter", sorted(df["Quarter"].unique()), index=3)
+    sector = st.selectbox(
+        "Sector",
+        sorted(df["Sector"].dropna().unique())
+    )
 
 with col2:
-    Year = st.selectbox("Year", sorted(df["Year"].unique()), index=8)
+    year_list = sorted(df["Year"].unique())
+    year = st.selectbox(
+        "Year",
+        year_list,
+        index=year_list.index(latest_year)
+    )
 
 with col3:
-    symbols = df.query("Sector == @Sector")["SYMBOL"].unique()
-    symbols_with_all = ["All"] + list(symbols)  # Add "All" option
-    selected_symbols = st.selectbox(
-        "Scips:", options=symbols_with_all, index=0
+    quarter_list = sorted(df["Quarter"].unique())
+    quarter = st.selectbox(
+        "Quarter",
+        quarter_list,
+        index=quarter_list.index(latest_quarter)
     )
 
-# Apply the selected filters to the dataframe
-if selected_symbols == "All":
-    df_selection = df.query(
-        "Sector == @Sector & Year == @Year & Quarter == @Quarter")
+symbols = df.query("Sector == @sector")["SYMBOL"].unique()
+symbols = ["All"] + sorted(symbols)
+
+selected_symbol = st.selectbox("Scripts", symbols)
+
+# ================= FILTER DATA =================
+if selected_symbol == "All":
+    df_sel = df.query(
+        "Sector == @sector & Year == @year & Quarter == @quarter"
+    )
 else:
-    df_selection = df.query(
-        "Sector == @Sector & Year == @Year & Quarter == @Quarter & SYMBOL == @selected_symbols"
+    df_sel = df.query(
+        "Sector == @sector & Year == @year & Quarter == @quarter & SYMBOL == @selected_symbol"
     )
 
-# Helper function to format values
+# ================= HELPERS =================
+def format_value(v):
+    if abs(v) >= 1e9:
+        return f"{v/1e9:.2f}B"
+    if abs(v) >= 1e6:
+        return f"{v/1e6:.2f}M"
+    if abs(v) >= 1e3:
+        return f"{v/1e3:.2f}K"
+    return f"{v:.2f}"
 
+def bar_chart(series, title, decimals=2):
+    df_plot = series.to_frame("value").copy()
 
-def format_value(value):
-    if value >= 1e9:
-        return f"{value/1e9:.2f}B"
-    elif value >= 1e6:
-        return f"{value/1e6:.2f}M"
-    elif value >= 1e3:
-        return f"{value/1e3:.2f}K"
-    else:
-        return f"{value:.2f}"
+    df_plot["label"] = df_plot["value"].round(decimals).astype(str)
 
-# Function to create bar charts
-
-
-def create_bar_chart(data, x, y, title):
-    data["v"] = data[y].apply(format_value)
     fig = px.bar(
-        data,
-        x=x,
-        y=y,
-        text=data["v"],
-        orientation="v",
+        df_plot,
+        x=df_plot.index,
+        y="value",
+        text="label",
         title=f"<b>{title}</b>",
-        color_discrete_sequence=["#0083B8"] * len(data),
-        template="plotly_white"
+        template="plotly_white",
+        color_discrete_sequence=["#0083B8"]
     )
-    fig.update_traces(textposition="outside")
 
-    # Disable zooming
+    fig.update_traces(textposition="outside")
     fig.update_layout(
         dragmode=False,
         xaxis=dict(fixedrange=True),
-        yaxis=dict(fixedrange=True)
+        yaxis=dict(fixedrange=True),
+        margin=dict(t=60)
     )
-
     return fig
 
+# ================= AGGREGATIONS =================
+price = df_sel.groupby("SYMBOL")["Price"].mean().sort_values()
+book_value = df_sel.groupby("SYMBOL")["BOOK VALUE"].mean().sort_values()
 
-# Create charts
-price = df_selection.groupby(by=["SYMBOL"]).sum()[
-    ["Price"]].sort_values(by="Price")
-fig_price = create_bar_chart(price, price.index, "Price", "Last Traded Price")
+eps = df_sel.groupby("SYMBOL")["EPS"].mean().sort_values()
+dps = df_sel.groupby("SYMBOL")["Dps"].mean().sort_values()
+pe = df_sel.groupby("SYMBOL")["PE"].mean().sort_values()
+npl = df_sel.groupby("SYMBOL")["NPL"].mean().sort_values()
 
-paid_up = df_selection.groupby(by=["SYMBOL"]).sum()[
-    ["PAID-UP"]].sort_values(by="PAID-UP")
-paid_up["PAID-UP"] *= 1000
-fig_paid_up = create_bar_chart(
-    paid_up, paid_up.index, "PAID-UP", "Capital Framework")
+paid_up = (df_sel.groupby("SYMBOL")["PAID-UP"].sum() * 1000).sort_values()
+net_profit = (df_sel.groupby("SYMBOL")["NET PROFIT"].sum() * 1000).sort_values()
+public_shares = df_sel.groupby("SYMBOL")["Public Shares"].sum().sort_values()
+reserve = df_sel.groupby("SYMBOL")["RESERVE"].sum().sort_values()
 
-eps = df_selection.groupby(by=["SYMBOL"]).sum()[["EPS"]].sort_values(by="EPS")
-fig_eps = create_bar_chart(eps, eps.index, "EPS", "EPS")
+# ================= PBV =================
+pbv = (price / book_value).dropna().round(1).sort_values()
 
-bookvalue = df_selection.groupby(by=["SYMBOL"]).sum()[
-    ["BOOK VALUE"]].sort_values(by="BOOK VALUE")
-fig_bookvalue = create_bar_chart(
-    bookvalue, bookvalue.index, "BOOK VALUE", "Book Value")
+# ================= EPS vs DPS =================
+eps_dps = df_sel.groupby("SYMBOL")[["EPS", "Dps"]].mean()
 
-dps = df_selection.groupby(by=["SYMBOL"]).sum()[["Dps"]].sort_values(by="Dps")
-fig_dps = create_bar_chart(dps, dps.index, "Dps", "DPS")
+fig_eps_dps = go.Figure([
+    go.Bar(name="EPS", x=eps_dps.index, y=eps_dps["EPS"]),
+    go.Bar(name="DPS", x=eps_dps.index, y=eps_dps["Dps"])
+])
 
-netprofit = df_selection.groupby(by=["SYMBOL"]).sum()[
-    ["NET PROFIT"]].sort_values(by="NET PROFIT")
-netprofit["NET PROFIT"] *= 1000
-fig_netprofit = create_bar_chart(
-    netprofit, netprofit.index, "NET PROFIT", "Net Profit")
-
-pe = df_selection.groupby(by=["SYMBOL"]).sum()[["PE"]].sort_values(by="PE")
-fig_pe = create_bar_chart(pe, pe.index, "PE", "PE Ratio")
-
-npl = df_selection.groupby(by=["SYMBOL"]).sum()[["NPL"]].sort_values(by="NPL")
-fig_npl = create_bar_chart(npl, npl.index, "NPL", "NPL")
-
-eps_dps = df_selection.groupby(by=["SYMBOL"]).sum()[
-    ["EPS", "Dps"]].sort_values(by="EPS")
-fig_eps_dps = go.Figure()
-fig_eps_dps.add_trace(go.Bar(
-    x=eps_dps.index,
-    y=eps_dps["EPS"],
-    name="EPS",
-    marker_color="#0083B8",
-    hovertemplate="<b>EPS:</b> %{y}<extra></extra>",
-    text=eps_dps["EPS"],
-    textposition="auto",
-))
-fig_eps_dps.add_trace(go.Bar(
-    x=eps_dps.index,
-    y=eps_dps["Dps"],
-    name="DPS",
-    marker_color="#FFA15A",
-    hovertemplate="<b>DPS:</b> %{y}<extra></extra>",
-    text=eps_dps["Dps"],
-    textposition="auto",
-))
 fig_eps_dps.update_layout(
-    title="<b>EPS and DPS</b>",
+    title="<b>EPS vs DPS</b>",
     template="plotly_white",
-    xaxis_title="Symbol",
-    yaxis_title="Value",
-    legend=dict(x=0.7, y=1),
+    barmode="group",
     dragmode=False,
     xaxis=dict(fixedrange=True),
     yaxis=dict(fixedrange=True)
 )
 
-ps = df_selection.groupby(by=["SYMBOL"]).sum(
-)[["Public Shares"]].sort_values(by="Public Shares")
-fig_ps = create_bar_chart(ps, ps.index, "Public Shares", "Public Shares")
+# ================= DISPLAY =================
+st.plotly_chart(bar_chart(price, "Last Traded Price"), width="stretch")
+st.plotly_chart(bar_chart(book_value, "Book Value"), width="stretch")
+st.plotly_chart(bar_chart(pbv, "PBV (Price to Book Value)", decimals=1), width="stretch")
 
-reserve = df_selection.groupby(by=["SYMBOL"]).sum()[
-    ["RESERVE"]].sort_values(by="RESERVE")
-fig_reserve = create_bar_chart(reserve, reserve.index, "RESERVE", "RESERVE")
-
-# Display charts
-st.plotly_chart(fig_price, use_container_width=True)
-st.plotly_chart(fig_ps, use_container_width=True)
-st.plotly_chart(fig_paid_up, use_container_width=True)
-st.plotly_chart(fig_eps_dps, use_container_width=True)
-st.plotly_chart(fig_bookvalue, use_container_width=True)
-st.plotly_chart(fig_pe, use_container_width=True)
-st.plotly_chart(fig_netprofit, use_container_width=True)
-st.plotly_chart(fig_reserve, use_container_width=True)
-st.plotly_chart(fig_npl, use_container_width=True)
-st.plotly_chart(fig_eps, use_container_width=True)
-st.plotly_chart(fig_dps, use_container_width=True)
+st.plotly_chart(bar_chart(public_shares, "Public Shares"), width="stretch")
+st.plotly_chart(bar_chart(paid_up, "Paid-Up Capital"), width="stretch")
+st.plotly_chart(fig_eps_dps, width="stretch")
+st.plotly_chart(bar_chart(pe, "PE Ratio"), width="stretch")
+st.plotly_chart(bar_chart(net_profit, "Net Profit"), width="stretch")
+st.plotly_chart(bar_chart(reserve, "Reserve"), width="stretch")
+st.plotly_chart(bar_chart(npl, "NPL"), width="stretch")
+st.plotly_chart(bar_chart(eps, "EPS"), width="stretch")
+st.plotly_chart(bar_chart(dps, "DPS"), width="stretch")
