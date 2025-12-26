@@ -6,11 +6,11 @@ import streamlit as st
 # ================= PAGE CONFIG =================
 st.set_page_config(
     page_title="Fundamental Analysis",
-    page_icon="📊",
+    
     layout="wide"
 )
 
-st.title("📊 Fundamental Analysis")
+
 
 # ================= LOAD DATA =================
 df = pd.read_excel("Fundamentals.xlsx", sheet_name="Sheet1")
