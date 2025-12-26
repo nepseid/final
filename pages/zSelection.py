@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import altair as alt
+import numpy as np
 
 # ================= PAGE CONFIG =================
 st.set_page_config(page_title="Fundamentals Dashboard", layout="wide")
@@ -27,7 +28,7 @@ latest_year = df["Year"].iloc[-1]
 latest_quarter = df["Quarter"].iloc[-1]
 
 # ================= HEADER =================
-
+st.header("📊 Fundamental Filters")
 
 # ================= HELPERS =================
 def parse_filter(val):
@@ -123,7 +124,15 @@ if st.button("Apply"):
 
     # ================= PBV =================
     df_f["PBV"] = (df_f["Price"] / df_f["BOOK VALUE"]).round(1)
-    df_f = df_f.sort_values("Price")
+    df_f = df_f.sort_values("Price").reset_index(drop=True)
+
+    # ================= GRAYSCALE COLORS =================
+    n = len(df_f)
+    if n > 1:
+        gray_values = np.linspace(255, 150, n)  # White -> Gray
+    else:
+        gray_values = [255]
+    df_f["color"] = [f"rgb({int(g)},{int(g)},{int(g)})" for g in gray_values]
 
     # ================= CHART BUILDER =================
     def bar_chart(data, y_col, title, fmt=None):
@@ -135,20 +144,19 @@ if st.button("Apply"):
             x=alt.X("SYMBOL:N", sort=None),
             y=y,
             tooltip=["SYMBOL", y_col],
-            color=alt.Color("SYMBOL:N", legend=None),
+            color=alt.Color("color:N", scale=None, legend=None)
         )
 
-        # Bar with text overlay
+        # Bar + text overlay
         bars = base.mark_bar()
         text = base.mark_text(
-            dy=-5,  # move text slightly above the bar
+            dy=-5,
             color="black"
         ).encode(
             text=alt.Text(f"{y_col}:Q")
         )
 
-        chart = (bars + text).properties(title=title, height=350)
-        return chart
+        return (bars + text).properties(title=title, height=350)
 
     # ================= CHARTS =================
     charts = [
