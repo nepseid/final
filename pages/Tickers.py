@@ -8,11 +8,10 @@ import numpy as np
 # ================= PAGE CONFIG =================
 st.set_page_config(
     page_title="Scrip Analysis",
-    page_icon="📊",
     layout="wide"
 )
 
-st.title("📊 Scrip Analysis")
+
 
 # ================= LOAD DATA =================
 df = pd.read_excel("Fundamentals.xlsx", sheet_name="Sheet1")
