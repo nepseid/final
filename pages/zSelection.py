@@ -1,132 +1,162 @@
 import pandas as pd
 import streamlit as st
 import altair as alt
-st.set_page_config(layout="wide")
 
-# Load data from Excel file
-df = pd.read_excel('Fundamentals.xlsx', sheet_name='Sheet1')
+# ================= PAGE CONFIG =================
+st.set_page_config(page_title="Fundamentals Dashboard", layout="wide")
 
-# Filter out unwanted sectors globally
-excluded_sectors = ['zdelist', 'Non List']
-df = df[~df['Sector'].isin(excluded_sectors)]
+# ================= LOAD DATA =================
+df = pd.read_excel("Fundamentals.xlsx", sheet_name="Sheet1")
 
-# Header for filters
-st.header("Filters")
+# ================= CLEAN & PREP =================
+excluded_sectors = ["zdelist", "Non List"]
+df = df[~df["Sector"].isin(excluded_sectors)].copy()
 
-# Helper to parse 'All' or numeric values
-def parse_filter(value):
+# Ensure numeric columns
+numeric_cols = [
+    "Price", "BOOK VALUE", "EPS", "Dps", "PE",
+    "ROE", "NPL", "Public Shares"
+]
+for col in numeric_cols:
+    df[col] = pd.to_numeric(df[col], errors="coerce")
+
+# Sort by Year & Quarter to get latest
+df = df.sort_values(["Year", "Quarter"])
+
+latest_year = df["Year"].iloc[-1]
+latest_quarter = df["Quarter"].iloc[-1]
+
+# ================= HEADER =================
+st.header("📊 Fundamental Filters")
+
+# ================= HELPERS =================
+def parse_filter(val):
     try:
-        return float(value)
+        return float(val)
     except:
         return None
 
-# Arrange filters in rows with 3 columns
+# ================= FILTER UI =================
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    year_filter = st.selectbox('Select Year:', options=sorted(df['Year'].unique(), reverse=True))
+    year_filter = st.selectbox(
+        "Select Year",
+        sorted(df["Year"].unique(), reverse=True),
+        index=0
+    )
     from_price = st.text_input("From Price (Rs)", value="All")
 
 with col2:
-    quarter_filter = st.selectbox('Select Quarter:', options=sorted(df['Quarter'].unique()))
+    quarter_filter = st.selectbox(
+        "Select Quarter",
+        sorted(df["Quarter"].unique()),
+        index=sorted(df["Quarter"].unique()).index(latest_quarter)
+    )
     to_price = st.text_input("To Price (Rs)", value="All")
 
 with col3:
     from_book = st.text_input("From Book Value", value="All")
     to_book = st.text_input("To Book Value", value="All")
 
-# EPS and DPS filters
 col4, col5 = st.columns(2)
 
 with col4:
-    eps_filter = st.selectbox('Select EPS Filter:', options=[
-        'All', 'Positive', 'Negative', 'More than 0', 'More than 5',
-        'More than 10', 'More than 20', 'More than 50'])
+    eps_filter = st.selectbox(
+        "Select EPS Filter",
+        ["All", "Positive", "Negative", "More than 0", "More than 5",
+         "More than 10", "More than 20", "More than 50"]
+    )
 
 with col5:
-    dps_filter = st.selectbox('Select DPS Filter:', options=[
-        'All', 'Positive', 'Negative', 'More than 0', 'More than 5',
-        'More than 10', 'More than 20', 'More than 50'])
+    dps_filter = st.selectbox(
+        "Select DPS Filter",
+        ["All", "Positive", "Negative", "More than 0", "More than 5",
+         "More than 10", "More than 20", "More than 50"]
+    )
 
-# Sector filter (excluding unwanted sectors)
-sector_options = [sector for sector in df['Sector'].unique()]
-sector_filter = st.multiselect('Select Sector:', sector_options, default=sector_options)
+sector_options = sorted(df["Sector"].unique())
+sector_filter = st.multiselect(
+    "Select Sector",
+    sector_options,
+    default=sector_options
+)
 
-# Apply button
+# ================= APPLY FILTERS =================
 if st.button("Apply"):
-    # Apply base filters
-    df_filtered = df[
-        (df['Year'] == year_filter) &
-        (df['Quarter'] == quarter_filter)
-    ]
 
-    # Price filters
-    from_price_val = parse_filter(from_price)
-    to_price_val = parse_filter(to_price)
+    df_f = df[
+        (df["Year"] == year_filter) &
+        (df["Quarter"] == quarter_filter) &
+        (df["Sector"].isin(sector_filter))
+    ].copy()
 
-    if from_price_val is not None:
-        df_filtered = df_filtered[df_filtered['Price'] >= from_price_val]
-    if to_price_val is not None:
-        df_filtered = df_filtered[df_filtered['Price'] <= to_price_val]
+    # Price filter
+    fp, tp = parse_filter(from_price), parse_filter(to_price)
+    if fp is not None:
+        df_f = df_f[df_f["Price"] >= fp]
+    if tp is not None:
+        df_f = df_f[df_f["Price"] <= tp]
 
-    # Book value filters
-    from_book_val = parse_filter(from_book)
-    to_book_val = parse_filter(to_book)
+    # Book value filter
+    fb, tb = parse_filter(from_book), parse_filter(to_book)
+    if fb is not None:
+        df_f = df_f[df_f["BOOK VALUE"] >= fb]
+    if tb is not None:
+        df_f = df_f[df_f["BOOK VALUE"] <= tb]
 
-    if from_book_val is not None:
-        df_filtered = df_filtered[df_filtered['BOOK VALUE'] >= from_book_val]
-    if to_book_val is not None:
-        df_filtered = df_filtered[df_filtered['BOOK VALUE'] <= to_book_val]
-
-    # EPS & DPS filters
-    filter_values = {
-        'Positive': lambda x: x > 0,
-        'Negative': lambda x: x < 0,
-        'More than 0': lambda x: x > 0,
-        'More than 5': lambda x: x > 5,
-        'More than 10': lambda x: x > 10,
-        'More than 20': lambda x: x > 20,
-        'More than 50': lambda x: x > 50
+    # EPS / DPS logic
+    ops = {
+        "Positive": lambda x: x > 0,
+        "Negative": lambda x: x < 0,
+        "More than 0": lambda x: x > 0,
+        "More than 5": lambda x: x > 5,
+        "More than 10": lambda x: x > 10,
+        "More than 20": lambda x: x > 20,
+        "More than 50": lambda x: x > 50,
     }
 
-    if eps_filter != 'All':
-        df_filtered = df_filtered[df_filtered['EPS'].apply(filter_values[eps_filter])]
-    if dps_filter != 'All':
-        df_filtered = df_filtered[df_filtered['Dps'].apply(filter_values[dps_filter])]
+    if eps_filter != "All":
+        df_f = df_f[df_f["EPS"].apply(ops[eps_filter])]
+    if dps_filter != "All":
+        df_f = df_f[df_f["Dps"].apply(ops[dps_filter])]
 
-    # Sector filter
-    if sector_filter:
-        df_filtered = df_filtered[df_filtered['Sector'].isin(sector_filter)]
+    # ================= PBV =================
+    df_f["PBV"] = (df_f["Price"] / df_f["BOOK VALUE"]).round(1)
 
-    # Sort data
-    df_filtered_sorted = df_filtered.sort_values('Price')
+    df_f = df_f.sort_values("Price")
 
-    # Chart builder without labels
-    def create_chart(data, x, y, tooltip, title):
-        chart = alt.Chart(data).mark_bar().encode(
-            x=alt.X(f'{x}:N', sort=None),
-            y=alt.Y(f'{y}:Q'),
-            tooltip=tooltip,
-            color=alt.Color(f'{x}:N', legend=None)
-        ).properties(title=title)
-        return chart
+    # ================= CHART BUILDER =================
+    def bar_chart(data, y_col, title, fmt=None):
+        y = alt.Y(f"{y_col}:Q", title=y_col)
+        if fmt:
+            y = y.axis(format=fmt)
 
-    # Create charts
-    price_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Price', ['SYMBOL', 'Price'], 'Current Price')
-    eps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'EPS', ['SYMBOL', 'EPS'], f'EPS for {year_filter} Q{quarter_filter}')
-    pe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'PE', ['SYMBOL', 'PE'], f'PE for {year_filter} Q{quarter_filter}')
-    public_shares_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Public Shares', ['SYMBOL', 'Public Shares'], 'Public Shares')
-    book_value_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'BOOK VALUE', ['SYMBOL', 'BOOK VALUE'], 'Book Value')
-    roe_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'ROE', ['SYMBOL', 'ROE'], 'ROE')
-    npl_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'NPL', ['SYMBOL', 'NPL'], 'NPL')
-    dps_chart = create_chart(df_filtered_sorted, 'SYMBOL', 'Dps', ['SYMBOL', 'Dps'], f'DPS for {year_filter} Q{quarter_filter}')
+        return (
+            alt.Chart(data)
+            .mark_bar()
+            .encode(
+                x=alt.X("SYMBOL:N", sort=None),
+                y=y,
+                tooltip=["SYMBOL", y_col],
+                color=alt.Color("SYMBOL:N", legend=None),
+            )
+            .properties(title=title, height=350)
+        )
 
-    # Display charts
-    st.altair_chart(price_chart, use_container_width=True)
-    st.altair_chart(eps_chart, use_container_width=True)
-    st.altair_chart(pe_chart, use_container_width=True)
-    st.altair_chart(public_shares_chart, use_container_width=True)
-    st.altair_chart(book_value_chart, use_container_width=True)
-    st.altair_chart(roe_chart, use_container_width=True)
-    st.altair_chart(npl_chart, use_container_width=True)
-    st.altair_chart(dps_chart, use_container_width=True)
+    # ================= CHARTS =================
+    charts = [
+        bar_chart(df_f, "Price", "Current Price"),
+        bar_chart(df_f, "EPS", f"EPS {year_filter} Q{quarter_filter}"),
+        bar_chart(df_f, "PE", f"PE {year_filter} Q{quarter_filter}"),
+        bar_chart(df_f, "PBV", "PBV (Price / Book Value)", fmt=".1f"),
+        bar_chart(df_f, "BOOK VALUE", "Book Value"),
+        bar_chart(df_f, "Public Shares", "Public Shares"),
+        bar_chart(df_f, "ROE", "ROE"),
+        bar_chart(df_f, "NPL", "NPL"),
+        bar_chart(df_f, "Dps", f"DPS {year_filter} Q{quarter_filter}"),
+    ]
+
+    # ================= DISPLAY =================
+    for c in charts:
+        st.altair_chart(c, use_container_width=True)
