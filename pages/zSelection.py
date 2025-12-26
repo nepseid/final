@@ -123,7 +123,6 @@ if st.button("Apply"):
 
     # ================= PBV =================
     df_f["PBV"] = (df_f["Price"] / df_f["BOOK VALUE"]).round(1)
-
     df_f = df_f.sort_values("Price")
 
     # ================= CHART BUILDER =================
@@ -132,17 +131,24 @@ if st.button("Apply"):
         if fmt:
             y = y.axis(format=fmt)
 
-        return (
-            alt.Chart(data)
-            .mark_bar()
-            .encode(
-                x=alt.X("SYMBOL:N", sort=None),
-                y=y,
-                tooltip=["SYMBOL", y_col],
-                color=alt.Color("SYMBOL:N", legend=None),
-            )
-            .properties(title=title, height=350)
+        base = alt.Chart(data).encode(
+            x=alt.X("SYMBOL:N", sort=None),
+            y=y,
+            tooltip=["SYMBOL", y_col],
+            color=alt.Color("SYMBOL:N", legend=None),
         )
+
+        # Bar with text overlay
+        bars = base.mark_bar()
+        text = base.mark_text(
+            dy=-5,  # move text slightly above the bar
+            color="black"
+        ).encode(
+            text=alt.Text(f"{y_col}:Q")
+        )
+
+        chart = (bars + text).properties(title=title, height=350)
+        return chart
 
     # ================= CHARTS =================
     charts = [
