@@ -132,10 +132,9 @@ fig_eps_dps.update_layout(
 
 # ================= DISPLAY =================
 st.plotly_chart(bar_chart(price, "Last Traded Price"), width="stretch")
+st.plotly_chart(bar_chart(public_shares, "Public Shares"), width="stretch")
 st.plotly_chart(bar_chart(book_value, "Book Value"), width="stretch")
 st.plotly_chart(bar_chart(pbv, "PBV (Price to Book Value)", decimals=1), width="stretch")
-
-st.plotly_chart(bar_chart(public_shares, "Public Shares"), width="stretch")
 st.plotly_chart(bar_chart(paid_up, "Paid-Up Capital"), width="stretch")
 st.plotly_chart(fig_eps_dps, width="stretch")
 st.plotly_chart(bar_chart(pe, "PE Ratio"), width="stretch")
